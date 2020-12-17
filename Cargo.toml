@@ -1,9 +1,8 @@
 [package]
-name = "hkproxy"
+name = "hkserver"
 version = "0.1.0"
-authors = ["Shaheen Gandhi <shaheen@fb.com>"]
+authors = ["Shaheen Gandhi <visigoth@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A gRPC server for HomeKit"
 
 [dependencies]
