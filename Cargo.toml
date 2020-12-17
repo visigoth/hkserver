@@ -6,3 +6,10 @@ edition = "2018"
 description = "A gRPC server for HomeKit"
 
 [dependencies]
+prost = "0.6.1"
+protobuf = "2.18.1"
+tokio = "0.3.5"
+tonic = "0.3.1"
+
+[build-dependencies]
+tonic-build = "0.3.1"

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package org.hkserver;
+
+message EnumerateDevicesRequest {
+  string name_filter = 1;
+}
+
+message EnumerateDevicesResponse {
+  repeated DeviceInformation devices = 1;
+}
+
+message DeviceInformation {
+  string name = 1;
+}
+
+service HomeKitService {
+  rpc EnumerateDevices(EnumerateDevicesRequest) returns (EnumerateDevicesResponse);
+}
