@@ -11,7 +11,9 @@ pub struct HKServer {}
 impl HomeKitService for HKServer {
     async fn enumerate_devices(&self, _request: Request<EnumerateDevicesRequest>) -> Result<Response<EnumerateDevicesResponse>, Status> {
         Ok(Response::new(EnumerateDevicesResponse {
-            devices: vec![]
+            devices: vec![DeviceInformation {
+                name: String::from("one")
+            }]
         }))
     }
 }
