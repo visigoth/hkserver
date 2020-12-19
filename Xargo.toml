@@ -1,0 +1,2 @@
+[target.x86_64-apple-ios-macabi.dependencies.std]
+std = {default-features=false, features=["force_alloc_system"]}
