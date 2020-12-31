@@ -3,9 +3,17 @@ tonic::include_proto!("org.hkserver");
 use tonic::{Request, Response, Status};
 use home_kit_service_server::HomeKitService;
 pub use home_kit_service_server::HomeKitServiceServer;
+use fruity::home_kit::HMHomeManager;
 
-#[derive(Default)]
-pub struct HKServer {}
+pub struct HKServer {
+}
+
+impl HKServer {
+    pub fn new() -> HKServer {
+        let _home_manager = HMHomeManager::new();
+        HKServer {}
+    }
+}
 
 #[tonic::async_trait]
 impl HomeKitService for HKServer {
