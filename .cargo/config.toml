@@ -1,0 +1,3 @@
+[build]
+target = "x86_64-apple-ios-macabi"
+#rustflags = ["-C", "link-args=-sectcreate __TEXT __info_plist Info.plist"]
