@@ -6,6 +6,7 @@ edition = "2018"
 description = "A gRPC server for HomeKit"
 
 [dependencies]
+clap = "2.33.3"
 prost = "0.6.1"
 protobuf = "2.18.1"
 tokio = { version = "0.2.24", features = ["full"] }
