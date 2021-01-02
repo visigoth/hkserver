@@ -63,3 +63,22 @@ Ensure the toolchain is set prior to invoking `build.sh`.
 > rustup override set myrust
 > ./build.sh
 ```
+
+# Running
+
+Running the executable directly will crash because the system does not find `Info.plist` and the usage description correctly. The server can only be started with `open`.
+
+```bash
+> open target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app
+```
+
+The first time you run it, you should see a prompt asking for access to HomeKit data.
+
+# Debugging
+
+Since running the executable directly will crash, the only way to debug is to start the app with `--debug`:
+
+```bash
+> open target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app --debug
+```
+

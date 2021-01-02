@@ -8,3 +8,7 @@
 # toolchain build can include std (and only nightly cargo supports -Z
 # build-std).
 cargo build $*
+
+# Use cargo-bundle to build and package the .app for the server. It requires
+# using a --target argument regardless of whether .cargo/config.toml exists.
+cargo bundle --target x86_64-apple-ios-macabi --bin server $*
