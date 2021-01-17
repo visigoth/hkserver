@@ -14,6 +14,7 @@
 		7AAACDA825B4494B00551455 /* hkserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDA725B4494B00551455 /* hkserverTests.swift */; };
 		7AAACDB325B4494B00551455 /* hkserverUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDB225B4494B00551455 /* hkserverUITests.swift */; };
 		7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AAACDC825B449E800551455 /* HomeKit.framework */; };
+		8982EE9841340861185C89EA /* libPods-hkserver.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A66A74C90277862CBB27F17 /* libPods-hkserver.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		35D1481AD6EC8F031E8661C1 /* Pods-hkserver.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hkserver.release.xcconfig"; path = "Target Support Files/Pods-hkserver/Pods-hkserver.release.xcconfig"; sourceTree = "<group>"; };
+		7A66A74C90277862CBB27F17 /* libPods-hkserver.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hkserver.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AAACD9225B4494A00551455 /* hkserver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hkserver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AAACD9525B4494A00551455 /* hkserverApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hkserverApp.swift; sourceTree = "<group>"; };
 		7AAACD9725B4494A00551455 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -48,6 +51,7 @@
 		7AAACDB425B4494B00551455 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7AAACDC325B4498000551455 /* hkserver.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = hkserver.entitlements; sourceTree = "<group>"; };
 		7AAACDC825B449E800551455 /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
+		DFC9ADBC8E38E3A2EC6BEBB4 /* Pods-hkserver.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hkserver.debug.xcconfig"; path = "Target Support Files/Pods-hkserver/Pods-hkserver.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */,
+				8982EE9841340861185C89EA /* libPods-hkserver.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +89,7 @@
 				7AAACDB125B4494B00551455 /* hkserverUITests */,
 				7AAACD9325B4494A00551455 /* Products */,
 				7AAACDC725B449E800551455 /* Frameworks */,
+				AEB2B0FB336FB89C2A8FE289 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -140,8 +146,19 @@
 			isa = PBXGroup;
 			children = (
 				7AAACDC825B449E800551455 /* HomeKit.framework */,
+				7A66A74C90277862CBB27F17 /* libPods-hkserver.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AEB2B0FB336FB89C2A8FE289 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DFC9ADBC8E38E3A2EC6BEBB4 /* Pods-hkserver.debug.xcconfig */,
+				35D1481AD6EC8F031E8661C1 /* Pods-hkserver.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,9 +168,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7AAACDB725B4494B00551455 /* Build configuration list for PBXNativeTarget "hkserver" */;
 			buildPhases = (
+				7F25AFCE56DE07A28B61767C /* [CP] Check Pods Manifest.lock */,
 				7AAACD8E25B4494A00551455 /* Sources */,
 				7AAACD8F25B4494A00551455 /* Frameworks */,
 				7AAACD9025B4494A00551455 /* Resources */,
+				8E68A259654A2AFD6EE13C17 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -267,6 +286,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7F25AFCE56DE07A28B61767C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-hkserver-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8E68A259654A2AFD6EE13C17 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hkserver/Pods-hkserver-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hkserver/Pods-hkserver-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hkserver/Pods-hkserver-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7AAACD8E25B4494A00551455 /* Sources */ = {
@@ -428,6 +489,7 @@
 		};
 		7AAACDB825B4494B00551455 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFC9ADBC8E38E3A2EC6BEBB4 /* Pods-hkserver.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -452,6 +514,7 @@
 		};
 		7AAACDB925B4494B00551455 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35D1481AD6EC8F031E8661C1 /* Pods-hkserver.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
