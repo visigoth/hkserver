@@ -17,7 +17,17 @@ cargo build $*
 cargo bundle --target x86_64-apple-ios-macabi --bin server $*
 
 # Code sign
-codesign --entitlements entitlements.plist -s \
-         $(security find-identity -v -p codesigning | awk '{print $2}' | head -n 1) \
-         ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app/Contents/MacOS/server
+#codesign --force --entitlements entitlements.plist -o runtime \
+#         --sign $(security find-identity -v -p codesigning | awk '{print $2}' | head -n 1) \
+#         --timestamp=none \
+#         ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app/Contents/MacOS/server
 
+codesign --force --entitlements entitlements.plist -o runtime \
+         --sign $(security find-identity -v -p codesigning | awk '{print $2}' | head -n 1) \
+         --timestamp \
+         ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app
+
+#xcnotary notarize target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app --developer-account "shaheen@brokenrobotllc.com" --developer-password-keychain-item AC_PASSWORD
+
+# Need to register with launch services
+/System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted -v ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app
