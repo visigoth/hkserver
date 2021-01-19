@@ -7,11 +7,14 @@
 
 import Foundation
 import GRPC
+import HomeKit
 import NIO
 
 class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
-    internal var interceptors: Org_Hkserver_HomeKitServiceServerInterceptorFactoryProtocol?
+    // ========== Org_Hkserver_HomeKitServiceProvider ============
     
+    internal var interceptors: Org_Hkserver_HomeKitServiceServerInterceptorFactoryProtocol?
+
     func enumerateDevices(request: Org_Hkserver_EnumerateDevicesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateDevicesResponse> {
         let response = Org_Hkserver_EnumerateDevicesResponse()
         return context.eventLoop.makeSucceededFuture(response)

@@ -8,7 +8,7 @@
 import ArgumentParser
 
 @main
-struct hkserverApp : ParsableCommand {
+struct HKServerCommand : ParsableCommand {
     @Flag(help: "Verbose logging")
     var verbose = false
 
@@ -16,6 +16,8 @@ struct hkserverApp : ParsableCommand {
     var port: Int?
 
     mutating func run() throws {
-        port = port ?? 20000
+        let port = self.port ?? 20000
+        let server = HKServer(address: nil, port: port)
+        server.run()
     }
 }

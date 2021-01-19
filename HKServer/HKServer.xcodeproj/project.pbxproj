@@ -11,7 +11,9 @@
 		7A0F450725B6663300FA32AB /* HomeKitServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F450625B6663300FA32AB /* HomeKitServiceProvider.swift */; };
 		7A0F451825B6678E00FA32AB /* hkserver.grpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F451625B6678E00FA32AB /* hkserver.grpc.swift */; };
 		7A0F451925B6678E00FA32AB /* hkserver.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F451725B6678E00FA32AB /* hkserver.pb.swift */; };
-		7AAACD9625B4494A00551455 /* hkserverApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9525B4494A00551455 /* hkserverApp.swift */; };
+		7A0F451E25B66B2300FA32AB /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F451D25B66B2300FA32AB /* HomeController.swift */; };
+		7A0F452925B66EB700FA32AB /* HKServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0F452825B66EB700FA32AB /* HKServer.swift */; };
+		7AAACD9625B4494A00551455 /* HKServerCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9525B4494A00551455 /* HKServerCommand.swift */; };
 		7AAACD9825B4494A00551455 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9725B4494A00551455 /* ContentView.swift */; };
 		7AAACD9A25B4494B00551455 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AAACD9925B4494B00551455 /* Assets.xcassets */; };
 		7AAACD9D25B4494B00551455 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AAACD9C25B4494B00551455 /* Preview Assets.xcassets */; };
@@ -42,8 +44,10 @@
 		7A0F450625B6663300FA32AB /* HomeKitServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HomeKitServiceProvider.swift; path = HKServer/HomeKitServiceProvider.swift; sourceTree = SOURCE_ROOT; };
 		7A0F451625B6678E00FA32AB /* hkserver.grpc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = hkserver.grpc.swift; path = HKServer/hkserver.grpc.swift; sourceTree = SOURCE_ROOT; };
 		7A0F451725B6678E00FA32AB /* hkserver.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = hkserver.pb.swift; path = HKServer/hkserver.pb.swift; sourceTree = SOURCE_ROOT; };
+		7A0F451D25B66B2300FA32AB /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HomeController.swift; path = HKServer/HomeController.swift; sourceTree = SOURCE_ROOT; };
+		7A0F452825B66EB700FA32AB /* HKServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HKServer.swift; path = HKServer/HKServer.swift; sourceTree = SOURCE_ROOT; };
 		7AAACD9225B4494A00551455 /* hkserver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hkserver.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7AAACD9525B4494A00551455 /* hkserverApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hkserverApp.swift; sourceTree = "<group>"; };
+		7AAACD9525B4494A00551455 /* HKServerCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKServerCommand.swift; sourceTree = "<group>"; };
 		7AAACD9725B4494A00551455 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7AAACD9925B4494B00551455 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7AAACD9C25B4494B00551455 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -113,12 +117,14 @@
 				7A0F451625B6678E00FA32AB /* hkserver.grpc.swift */,
 				7A0F451725B6678E00FA32AB /* hkserver.pb.swift */,
 				7AAACDC325B4498000551455 /* hkserver.entitlements */,
-				7AAACD9525B4494A00551455 /* hkserverApp.swift */,
+				7AAACD9525B4494A00551455 /* HKServerCommand.swift */,
 				7AAACD9725B4494A00551455 /* ContentView.swift */,
 				7AAACD9925B4494B00551455 /* Assets.xcassets */,
 				7AAACD9E25B4494B00551455 /* Info.plist */,
 				7AAACD9B25B4494B00551455 /* Preview Content */,
 				7A0F450625B6663300FA32AB /* HomeKitServiceProvider.swift */,
+				7A0F451D25B66B2300FA32AB /* HomeController.swift */,
+				7A0F452825B66EB700FA32AB /* HKServer.swift */,
 			);
 			path = hkserver;
 			sourceTree = "<group>";
@@ -297,8 +303,10 @@
 				7A0F450725B6663300FA32AB /* HomeKitServiceProvider.swift in Sources */,
 				7AAACD9825B4494A00551455 /* ContentView.swift in Sources */,
 				7A0F451825B6678E00FA32AB /* hkserver.grpc.swift in Sources */,
-				7AAACD9625B4494A00551455 /* hkserverApp.swift in Sources */,
+				7AAACD9625B4494A00551455 /* HKServerCommand.swift in Sources */,
 				7A0F451925B6678E00FA32AB /* hkserver.pb.swift in Sources */,
+				7A0F451E25B66B2300FA32AB /* HomeController.swift in Sources */,
+				7A0F452925B66EB700FA32AB /* HKServer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
