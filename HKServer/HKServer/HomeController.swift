@@ -8,20 +8,22 @@
 import Foundation
 import HomeKit
 
+protocol HomeControllerDelegate : class {
+    func isReady() -> Void
+}
+
 class HomeController : NSObject, HMHomeManagerDelegate {
     var homeManager: HMHomeManager
-    var ready: (HomeController) -> Void
+    public weak var delegate: HomeControllerDelegate?
     
-    init(ready: @escaping (HomeController) -> Void) {
+    override init() {
         self.homeManager = HMHomeManager()
-        self.ready = ready
         super.init()
-        
         homeManager.delegate = self
     }
     
     func homeManagerDidUpdateHomes(_ manager: HMHomeManager) {
-        self.ready(self)
+        self.delegate?.isReady()
     }
 
     private func isAuthorized(status: HMHomeManagerAuthorizationStatus) -> Bool {

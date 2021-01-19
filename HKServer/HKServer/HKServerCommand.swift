@@ -12,12 +12,11 @@ struct HKServerCommand : ParsableCommand {
     @Flag(help: "Verbose logging")
     var verbose = false
 
-    @Option(name: .shortAndLong, help: "Port to bind to. Default is 20000")
+    @Option(name: .shortAndLong, help: "Port to bind to. Default is 55123")
     var port: Int?
 
     mutating func run() throws {
-        let port = self.port ?? 20000
-        let server = HKServer(address: nil, port: port)
+        let server = HKServer(host: nil, port: port ?? 55123)
         server.run()
     }
 }
