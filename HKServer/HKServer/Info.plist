@@ -48,5 +48,7 @@
 	</array>
 	<key>NSHomeKitUsageDescription</key>
 	<string>Home Kit Server API</string>
+	<key>LSUIElement</key>
+	<true/>
 </dict>
 </plist>
