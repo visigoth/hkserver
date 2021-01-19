@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A0F44E325B65CDF00FA32AB /* SwiftGRPC in Frameworks */ = {isa = PBXBuildFile; productRef = 7A0F44E225B65CDF00FA32AB /* SwiftGRPC */; };
 		7AAACD9625B4494A00551455 /* hkserverApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9525B4494A00551455 /* hkserverApp.swift */; };
 		7AAACD9825B4494A00551455 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9725B4494A00551455 /* ContentView.swift */; };
 		7AAACD9A25B4494B00551455 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AAACD9925B4494B00551455 /* Assets.xcassets */; };
@@ -14,7 +15,7 @@
 		7AAACDA825B4494B00551455 /* hkserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDA725B4494B00551455 /* hkserverTests.swift */; };
 		7AAACDB325B4494B00551455 /* hkserverUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDB225B4494B00551455 /* hkserverUITests.swift */; };
 		7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AAACDC825B449E800551455 /* HomeKit.framework */; };
-		7ACFB1E225B655F1006F2FBA /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 7ACFB1E125B655F1006F2FBA /* SwiftPackageProductDependency */; };
+		7ACFB1E225B655F1006F2FBA /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 7ACFB1E125B655F1006F2FBA /* ArgumentParser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,8 +57,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7ACFB1E225B655F1006F2FBA /* BuildFile in Frameworks */,
+				7ACFB1E225B655F1006F2FBA /* ArgumentParser in Frameworks */,
 				7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */,
+				7A0F44E325B65CDF00FA32AB /* SwiftGRPC in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,7 +88,6 @@
 				7AAACDB125B4494B00551455 /* hkserverUITests */,
 				7AAACD9325B4494A00551455 /* Products */,
 				7AAACDC725B449E800551455 /* Frameworks */,
-				AEB2B0FB336FB89C2A8FE289 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,13 +148,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		AEB2B0FB336FB89C2A8FE289 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -171,7 +165,8 @@
 			);
 			name = hkserver;
 			packageProductDependencies = (
-				7ACFB1E125B655F1006F2FBA /* SwiftPackageProductDependency */,
+				7ACFB1E125B655F1006F2FBA /* ArgumentParser */,
+				7A0F44E225B65CDF00FA32AB /* SwiftGRPC */,
 			);
 			productName = hkserver;
 			productReference = 7AAACD9225B4494A00551455 /* hkserver.app */;
@@ -245,7 +240,8 @@
 			);
 			mainGroup = 7AAACD8925B4494A00551455;
 			packageReferences = (
-				7ACFB1E025B655F1006F2FBA /* RemoteSwiftPackageReference */,
+				7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				7A0F44E125B65CDF00FA32AB /* XCRemoteSwiftPackageReference "grpc-swift" */,
 			);
 			productRefGroup = 7AAACD9325B4494A00551455 /* Products */;
 			projectDirPath = "";
@@ -616,7 +612,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		7ACFB1E025B655F1006F2FBA /* RemoteSwiftPackageReference */ = {
+		7A0F44E125B65CDF00FA32AB /* XCRemoteSwiftPackageReference "grpc-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/grpc/grpc-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
+		7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-argument-parser";
 			requirement = {
@@ -627,9 +631,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7ACFB1E125B655F1006F2FBA /* SwiftPackageProductDependency */ = {
+		7A0F44E225B65CDF00FA32AB /* SwiftGRPC */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7ACFB1E025B655F1006F2FBA /* RemoteSwiftPackageReference */;
+			package = 7A0F44E125B65CDF00FA32AB /* XCRemoteSwiftPackageReference "grpc-swift" */;
+			productName = SwiftGRPC;
+		};
+		7ACFB1E125B655F1006F2FBA /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
 		};
 /* End XCSwiftPackageProductDependency section */
