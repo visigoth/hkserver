@@ -29,5 +29,5 @@ ring = { git = "https://github.com/visigoth/ring", branch = "mac-catalyst" }
 
 [package.metadata.bundle.bin.server]
 name = "hkserver"
-identifier = "io.github.visigoth.hkrpc"
+identifier = "io.github.visigoth.hkrpc.server"
 plist_table = { NSHomeKitUsageDescription = "Application server to manage HomeKit" }
