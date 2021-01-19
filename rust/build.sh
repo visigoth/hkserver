@@ -22,8 +22,14 @@ cargo bundle --target x86_64-apple-ios-macabi --bin server $*
 #         --timestamp=none \
 #         ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app/Contents/MacOS/server
 
-codesign --force --entitlements entitlements.plist -o runtime \
-         --sign $(security find-identity -v -p codesigning | awk '{print $2}' | head -n 1) \
+#codesign --force --entitlements entitlements.plist -o runtime \
+#         --sign $(security find-identity -v -p codesigning | awk '{print $2}' | head -n 1) \
+#         --timestamp \
+#         ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app
+
+codesign --force --deep -o runtime \
+         --entitlements entitlements.plist \
+         --sign 7E2DE1CF161741E61566CC765BC18B0F9B031977 \
          --timestamp \
          ./target/x86_64-apple-ios-macabi/debug/bundle/osx/hkserver.app
 
