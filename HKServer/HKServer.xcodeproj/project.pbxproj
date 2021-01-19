@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		7AAACDA825B4494B00551455 /* hkserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDA725B4494B00551455 /* hkserverTests.swift */; };
 		7AAACDB325B4494B00551455 /* hkserverUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACDB225B4494B00551455 /* hkserverUITests.swift */; };
 		7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AAACDC825B449E800551455 /* HomeKit.framework */; };
+		7ACFB1E225B655F1006F2FBA /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 7ACFB1E125B655F1006F2FBA /* ArgumentParser */; };
 		8982EE9841340861185C89EA /* libPods-hkserver.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A66A74C90277862CBB27F17 /* libPods-hkserver.a */; };
 /* End PBXBuildFile section */
 
@@ -59,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7ACFB1E225B655F1006F2FBA /* ArgumentParser in Frameworks */,
 				7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */,
 				8982EE9841340861185C89EA /* libPods-hkserver.a in Frameworks */,
 			);
@@ -157,7 +159,6 @@
 				DFC9ADBC8E38E3A2EC6BEBB4 /* Pods-hkserver.debug.xcconfig */,
 				35D1481AD6EC8F031E8661C1 /* Pods-hkserver.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -179,6 +180,9 @@
 			dependencies = (
 			);
 			name = hkserver;
+			packageProductDependencies = (
+				7ACFB1E125B655F1006F2FBA /* ArgumentParser */,
+			);
 			productName = hkserver;
 			productReference = 7AAACD9225B4494A00551455 /* hkserver.app */;
 			productType = "com.apple.product-type.application";
@@ -250,6 +254,9 @@
 				Base,
 			);
 			mainGroup = 7AAACD8925B4494A00551455;
+			packageReferences = (
+				7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+			);
 			productRefGroup = 7AAACD9325B4494A00551455 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -661,6 +668,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7ACFB1E125B655F1006F2FBA /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7ACFB1E025B655F1006F2FBA /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7AAACD8A25B4494A00551455 /* Project object */;
 }
