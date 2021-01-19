@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7A0F44E325B65CDF00FA32AB /* SwiftGRPC in Frameworks */ = {isa = PBXBuildFile; productRef = 7A0F44E225B65CDF00FA32AB /* SwiftGRPC */; };
+		7A0F44F125B6622300FA32AB /* GRPC in Frameworks */ = {isa = PBXBuildFile; productRef = 7A0F44F025B6622300FA32AB /* GRPC */; };
 		7AAACD9625B4494A00551455 /* hkserverApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9525B4494A00551455 /* hkserverApp.swift */; };
 		7AAACD9825B4494A00551455 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAACD9725B4494A00551455 /* ContentView.swift */; };
 		7AAACD9A25B4494B00551455 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AAACD9925B4494B00551455 /* Assets.xcassets */; };
@@ -58,8 +58,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7ACFB1E225B655F1006F2FBA /* ArgumentParser in Frameworks */,
+				7A0F44F125B6622300FA32AB /* GRPC in Frameworks */,
 				7AAACDC925B449E800551455 /* HomeKit.framework in Frameworks */,
-				7A0F44E325B65CDF00FA32AB /* SwiftGRPC in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,7 +166,7 @@
 			name = hkserver;
 			packageProductDependencies = (
 				7ACFB1E125B655F1006F2FBA /* ArgumentParser */,
-				7A0F44E225B65CDF00FA32AB /* SwiftGRPC */,
+				7A0F44F025B6622300FA32AB /* GRPC */,
 			);
 			productName = hkserver;
 			productReference = 7AAACD9225B4494A00551455 /* hkserver.app */;
@@ -631,10 +631,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7A0F44E225B65CDF00FA32AB /* SwiftGRPC */ = {
+		7A0F44F025B6622300FA32AB /* GRPC */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7A0F44E125B65CDF00FA32AB /* XCRemoteSwiftPackageReference "grpc-swift" */;
-			productName = SwiftGRPC;
+			productName = GRPC;
 		};
 		7ACFB1E125B655F1006F2FBA /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
