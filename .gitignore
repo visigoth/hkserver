@@ -1,5 +1,5 @@
-/rust/target
+/hkserver-rs/target
 /HKServer/HKServer.xcodeproj/xcuserdata
 /HKServer/HKServer.xcodeproj/project.xcworkspace/xcuserdata
-/HKServer/HKServer.xcworkspace/xcuserdata
-/HKServer/Pods
+/hkserver.xcworkspace/xcuserdata
+/protos/swift/*.swift
