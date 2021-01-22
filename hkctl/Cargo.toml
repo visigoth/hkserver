@@ -1,0 +1,16 @@
+[package]
+name = "hkctl"
+version = "0.1.0"
+authors = ["Shaheen Gandhi <shaheen@fb.com>"]
+edition = "2018"
+description = "A command line porcelain for managing HomeKit"
+
+[dependencies]
+clap = "2.33.3"
+prost = "0.6.1"
+protobuf = "2.18.1"
+tokio = { version = "0.2.24", features = ["full"] }
+tonic = { version = "0.3.1", features = ["transport", "tls", "codegen"] }
+
+[build-dependencies]
+tonic-build = "0.3.1"
