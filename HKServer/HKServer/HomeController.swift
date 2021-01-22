@@ -13,7 +13,7 @@ protocol HomeControllerDelegate : class {
 }
 
 class HomeController : NSObject, HMHomeManagerDelegate {
-    var homeManager: HMHomeManager
+    private(set) public var homeManager: HMHomeManager
     public weak var delegate: HomeControllerDelegate?
     
     override init() {

@@ -13,19 +13,15 @@ class HKServer : HomeControllerDelegate {
     var homeController: HomeController
 
     var eventLoopGroup: MultiThreadedEventLoopGroup
-
-    var service: HomeKitServiceProvider
-
-    var serverConfiguration: Server.Configuration
+    var service: HomeKitServiceProvider?
+    var target: BindTarget
 
     var runLoopSource: CFRunLoopSource?
     var runLoop: RunLoop?
 
     init(host: String?, port: Int) {
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
-        service = HomeKitServiceProvider()
-        let target = BindTarget.hostAndPort(host ?? "127.0.0.1", port)
-        serverConfiguration = Server.Configuration(target: target, eventLoopGroup: eventLoopGroup, serviceProviders: [service])
+        target = BindTarget.hostAndPort(host ?? "127.0.0.1", port)
         homeController = HomeController()
         homeController.delegate = self
     }
@@ -47,6 +43,13 @@ class HKServer : HomeControllerDelegate {
     // ============= HomeControllerDelegate ===============
 
     func isReady() {
+        service = HomeKitServiceProvider(homeManager: homeController.homeManager)
+        let serverConfiguration = Server.Configuration(
+            target: self.target,
+            eventLoopGroup: self.eventLoopGroup,
+            serviceProviders: [service!]
+        )
+        
         Server.start(configuration: serverConfiguration)
             .flatMap { $0.onClose }
             .whenComplete({_ -> Void in

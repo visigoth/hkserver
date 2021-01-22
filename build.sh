@@ -10,8 +10,8 @@ export PATH=$(pwd)/third-party/protoc/bin:$(pwd)/third-party/grpc-swift:$PATH
 
 # Generate protobuf and grpc code
 mkdir -p gen
-protoc --proto_path=protos --swift_out=protos/swift/hkrpc/Sources protos/hkserver.proto
-protoc --proto_path=protos --grpc-swift_out=protos/swift/hkrpc/Sources protos/hkserver.proto
+protoc --proto_path=protos --swift_out=protos/swift protos/hkserver.proto
+protoc --proto_path=protos --grpc-swift_out=protos/swift protos/hkserver.proto
 
 # Build the project
-xcodebuild -workspace hkserver.xcworkspace -scheme hkserver
+xcodebuild -workspace hkutils.xcworkspace -scheme hkserver

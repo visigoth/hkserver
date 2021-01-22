@@ -29,6 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let endpoint = Uri::builder()
         .scheme("http")
         .authority(authority.as_str())
+        .path_and_query("/")
         .build();
     let channel = tonic::transport::Channel::builder(endpoint.unwrap())
         .connect()
@@ -37,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match matches.subcommand_name() {
         Some("homes") => {
-            homes::command(matches.subcommand_matches("homes").unwrap(), client).await;
+            homes::command(matches.subcommand_matches("homes").unwrap(), client).await.unwrap();
         },
         _ => {
             println!("oijasdoj");
