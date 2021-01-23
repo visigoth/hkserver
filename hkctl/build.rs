@@ -8,5 +8,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Inject build project as cfg "profile" key
     println!("cargo:rustc-cfg=profile=\"{}\"", std::env::var("PROFILE").unwrap());
 
-   Ok(())
+    Ok(())
 }
