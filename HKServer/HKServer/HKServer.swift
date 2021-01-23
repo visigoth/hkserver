@@ -49,7 +49,7 @@ class HKServer : HomeControllerDelegate {
             eventLoopGroup: self.eventLoopGroup,
             serviceProviders: [service!]
         )
-        
+
         Server.start(configuration: serverConfiguration)
             .flatMap { $0.onClose }
             .whenComplete({_ -> Void in

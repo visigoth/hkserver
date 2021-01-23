@@ -10,7 +10,15 @@ message EnumerateHomesResponse {
 }
 
 message HomeInformation {
+  enum HomeHubState {
+    CONNECTED = 0;
+    DISCONNECTED = 1;
+    NOT_AVAILABLE = 2;
+  }
+
   string name = 1;
+  bool is_primary = 2;
+  HomeHubState hub_state = 3;
 }
 
 service HomeKitService {
