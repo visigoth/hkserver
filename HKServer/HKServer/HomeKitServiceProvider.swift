@@ -27,6 +27,7 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             var hi = Org_Hkserver_HomeInformation()
             hi.name = home.name
             hi.isPrimary = home.isPrimary
+            hi.uuid = home.uniqueIdentifier.uuidString
             switch home.homeHubState {
             case .connected:
                 hi.hubState = Org_Hkserver_HomeInformation.HomeHubState.connected

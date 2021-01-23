@@ -15,3 +15,5 @@ protoc --proto_path=protos --grpc-swift_out=protos/swift protos/hkserver.proto
 
 # Build the project
 xcodebuild -workspace hkutils.xcworkspace -scheme hkserver
+pushd hkctl && cargo build && popd
+

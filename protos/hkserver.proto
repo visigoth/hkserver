@@ -19,6 +19,7 @@ message HomeInformation {
   string name = 1;
   bool is_primary = 2;
   HomeHubState hub_state = 3;
+  string uuid = 4;
 }
 
 service HomeKitService {

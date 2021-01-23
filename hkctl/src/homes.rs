@@ -13,6 +13,7 @@ fn print_response(response: &EnumerateHomesResponse) {
             HomeHubState::NotAvailable => "Not Available",
         };
         println!("Home: {}{}", home.name, primary);
+        println!("  UUID:      {}", home.uuid);
         println!("  Hub State: {}", hub_state);
     });
 }
