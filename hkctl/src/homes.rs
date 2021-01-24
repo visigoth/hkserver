@@ -8,6 +8,7 @@ fn print_response(response: &EnumerateHomesResponse) {
     response.homes.iter().for_each(|home| {
         let primary = if home.is_primary { " (Primary)" } else { "" };
         let hub_state = match HomeHubState::from_i32(home.hub_state).unwrap() {
+            HomeHubState::InvalidHomeHubState => "Unknown",
             HomeHubState::Connected => "Connected",
             HomeHubState::Disconnected => "Disconnected",
             HomeHubState::NotAvailable => "Not Available",

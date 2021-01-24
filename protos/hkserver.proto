@@ -1,6 +1,395 @@
 syntax = "proto3";
 package org.hkserver;
 
+message NameUuidPair {
+  string name = 1;
+  string uuid = 2;
+}
+
+message Number {
+  oneof value {
+    int64 signed_integer_value = 1;
+    uint64 unsigned_integer_value = 2;
+    float float_value = 3;
+    double double_value = 4;
+  }
+}
+
+message AccessoryProfileInformation {
+  string uuid = 1;
+  repeated NameUuidPair services = 2;
+  bool is_network_access_restricted = 3;
+}
+
+enum ServiceType {
+  INVALID_SERVICE_TYPE = 0;
+  LIGHT_BULB = 1;
+  LIGHT_SENSOR = 2;
+  SWITCH = 3;
+  BATTERY = 4;
+  OUTLET = 5;
+  STATEFUL_PROGRAMMABLE_SWITCH = 6;
+  STATELESS_PROGRAMMABLE_SWITCH = 7;
+  AIR_PURIFIER = 8;
+  AIR_QUALITY_SENSOR = 9;
+  CARBON_DIOXIDE_SENSOR = 10;
+  CARBON_MONOXIDE_SENSOR = 11;
+  SMOKE_SENSOR = 12;
+  HEATER_COOLER = 13;
+  TEMPERATURE_SENSOR = 14;
+  THERMOSTAT = 15;
+  FAN = 16;
+  FILTER_MAINTENANCE = 17;
+  HUMIDIFIER_DEHUMIDIFIER = 18;
+  HUMIDITY_SENSOR = 19;
+  VENTILATION_FAN = 20;
+  WINDOW = 21;
+  WINDOW_COVERING = 22;
+  SLATS = 23;
+  FAUCET = 24;
+  VALVE = 25;
+  IRRIGATION_SYSTEM = 26;
+  LEAK_SENSOR = 27;
+  DOOR = 28;
+  DOORBELL = 29;
+  GARAGE_DOOR_OPENER = 30;
+  LOCK_MANAGEMENT = 31;
+  LOCK_MECHANISM = 32;
+  MOTION_SENSOR = 33;
+  OCCUPANCY_SENSOR = 34;
+  SECURITY_SYSTEM = 35;
+  CONTACT_SENSOR = 36;
+  CAMERA_CONTROL = 37;
+  CAMERA_RTP_STREAM_MANAGEMENT = 38;
+  MICROPHONE = 39;
+  SPEAKER = 40;
+  LABEL = 41;
+  ACCESSORY_INFORMATION = 42;
+}
+
+message CharacteristicInformation {
+  enum Property {
+    INVALID_PROPERTY = 0;
+    READABLE = 1;
+    WRITABLE = 2;
+    SUPPORTS_EVENT = 3;
+    HIDDEN = 4;
+  }
+
+  enum Type {
+    INVALID_CHARACTERISTIC_TYPE = 0;
+    TARGET_RELATIVE_HUMIDITY = 1;
+    MANUFACTURER = 2;
+    MODEL = 3;
+    SERIAL_NUMBER = 4;
+    IDENTIFY = 5;
+    OUTLET_IN_USE = 6;
+    LOGS = 7;
+    AUDIO_FEEDBACK = 8;
+    ADMIN_ONLY_ACCESS = 9;
+    SECURITY_SYSTEM_ALARM_TYPE = 10;
+    MOTION_DETECTED = 11;
+    LOCK_MECHANISM_LAST_KNOWN_ACTION = 12;
+    LOCK_MANAGEMENT_CONTROL_POINT = 13;
+    LOCK_MANAGEMENT_AUTO_SECURE_TIMEOUT = 14;
+    AIR_PARTICULATE_DENSITY = 15;
+    AIR_PARTICULATE_SIZE = 16;
+    AIR_QUALITY = 17;
+    CARBON_DIOXIDE_DETECTED = 18;
+    CARBON_DIOXIDE_LEVEL = 19;
+    CARBON_DIOXIDE_PEAK_LEVEL = 20;
+    CARBON_MONOXIDE_DETECTED = 21;
+    CARBON_MONOXIDE_LEVEL = 22;
+    CARBON_MONOXIDE_PEAK_LEVEL = 23;
+    CONTACT_STATE = 24;
+    CURRENT_HORIZONTAL_TILT = 25;
+    CURRENT_POSITION = 26;
+    CURRENT_SECURITY_SYSTEM_STATE = 27;
+    CURRENT_VERTICAL_TILT = 28;
+    FIRMWARE_VERSION = 29;
+    HARDWARE_VERSION = 30;
+    HOLD_POSITION = 31;
+    LEAK_DETECTED = 32;
+    OCCUPANCY_DETECTED = 33;
+    OUTPUT_STATE = 34;
+    POSITION_STATE = 35;
+    SOFTWARE_VERSION = 36;
+    STATUS_ACTIVE = 37;
+    STATUS_FAULT = 38;
+    STATUS_JAMMED = 39;
+    STATUS_TAMPERED = 40;
+    TARGET_HORIZONTAL_TILT = 41;
+    TARGET_SECURITY_SYSTEM_STATE = 42;
+    TARGET_POSITION = 43;
+    TARGET_VERTICAL_TILT = 44;
+    STREAMING_STATUS = 45;
+    SETUP_STREAM_ENDPOINT = 46;
+    SUPPORTED_VIDEO_STREAM_CONFIGURATION = 47;
+    SUPPORTED_RT_PCONFIGURATION = 48;
+    SELECTED_STREAM_CONFIGURATION = 49;
+    OPTICAL_ZOOM = 50;
+    DIGITAL_ZOOM = 51;
+    IMAGE_ROTATION = 52;
+    IMAGE_MIRRORING = 53;
+    LABEL_NAMESPACE = 54;
+    LABEL_INDEX = 55;
+    CURRENT_AIR_PURIFIER_STATE = 56;
+    TARGET_AIR_PURIFIER_STATE = 57;
+    CURRENT_SLAT_STATE = 58;
+    FILTER_CHANGE_INDICATION = 59;
+    FILTER_LIFE_LEVEL = 60;
+    FILTER_RESET_CHANGE_INDICATION = 61;
+    SLAT_TYPE = 62;
+    CURRENT_TILT = 63;
+    TARGET_TILT = 64;
+    OZONE_DENSITY = 65;
+    NITROGEN_DIOXIDE_DENSITY = 66;
+    SULPHUR_DIOXIDE_DENSITY = 67;
+    PM2_5_DENSITY = 68;
+    PM10_DENSITY = 69;
+    VOLATILE_ORGANIC_COMPOUND_DENSITY = 70;
+    PROGRAM_MODE = 71;
+    IN_USE = 72;
+    SET_DURATION = 73;
+    REMAINING_DURATION = 74;
+    VALVE_TYPE = 75;
+    BRIGHTNESS = 76;
+    COOLING_THRESHOLD = 77;
+    CURRENT_DOOR_STATE = 78;
+    CURRENT_HEATING_COOLING = 79;
+    CURRENT_RELATIVE_HUMIDITY = 80;
+    CURRENT_TEMPERATURE = 81;
+    HEATING_THRESHOLD = 82;
+    HUE = 83;
+    CURRENT_LOCK_MECHANISM_STATE = 84;
+    TARGET_LOCK_MECHANISM_STATE = 85;
+    NAME = 86;
+    OBSTRUCTION_DETECTED = 87;
+    POWER_STATE = 88;
+    ROTATION_DIRECTION = 89;
+    ROTATION_SPEED = 90;
+    SATURATION = 91;
+    TARGET_DOOR_STATE = 92;
+    TARGET_HEATING_COOLING = 93;
+    TARGET_TEMPERATURE = 94;
+    TEMPERATURE_UNITS = 95;
+    VERSION = 96;
+    BATTERY_LEVEL = 97;
+    CURRENT_LIGHT_LEVEL = 98;
+    INPUT_EVENT = 99;
+    SMOKE_DETECTED = 100;
+    STATUS_LOW_BATTERY = 101;
+    CHARGING_STATE = 102;
+    LOCK_PHYSICAL_CONTROLS = 103;
+    CURRENT_FAN_STATE = 104;
+    ACTIVE = 105;
+    CURRENT_HEATER_COOLER_STATE = 106;
+    TARGET_HEATER_COOLER_STATE = 107;
+    CURRENT_HUMIDIFIER_DEHUMIDIFIER_STATE = 108;
+    TARGET_HUMIDIFIER_DEHUMIDIFIER_STATE = 109;
+    WATER_LEVEL = 110;
+    SWING_MODE = 111;
+    TARGET_FAN_STATE = 112;
+    DEHUMIDIFIER_THRESHOLD = 113;
+    HUMIDIFIER_THRESHOLD = 114;
+    COLOR_TEMPERATURE = 115;
+    IS_CONFIGURED = 116;
+    SUPPORTED_AUDIO_STREAM_CONFIGURATION = 117;
+    VOLUME = 118;
+    MUTE = 119;
+    NIGHT_VISION = 120;
+  }
+
+  enum Format {
+    INVALID_FORMAT = 0;
+    BOOL = 1;
+    INT = 2;
+    FLOAT = 3;
+    STRING = 4;
+    ARRAY = 5;
+    DICTIONARY = 6;
+    UINT8 = 7;
+    UINT16 = 8;
+    UINT32 = 9;
+    UINT64 = 10;
+    DATA = 11;
+    TLV8 = 12;
+  }
+
+  enum Units {
+    INVALID_UNITS = 0;
+    CELSIUS = 1;
+    FAHRENHEIT = 2;
+    PERCENTAGE = 3;
+    ARC_DEGREE = 4;
+    SECONDS = 5;
+    LUX = 6;
+    PARTS_PER_MILLION = 7;
+    MICROGRAMS_PER_CUBIC_METER = 8;
+  }
+
+  message Value {
+    oneof value {
+      bool bool_value = 1;
+      string string_value = 2;
+      Number number_value = 3;
+      bytes data_value = 4;
+      // TODO: figure out array and dictionary values
+    }
+  }
+
+  message Metadata {
+    string manufacturer_description = 1;
+    repeated Number valid_values = 2;
+    /* optional */ Number minimum_value = 3;
+    /* optional */ Number maximum_value = 4;
+    /* optional */ Number step_value = 5;
+    /* optional */ Number max_length = 6;
+    /* optional */ Format format = 7;
+    /* optional */ Units units = 8;
+  }
+
+  string uuid = 1;
+  string description = 2;
+  repeated Property properties = 3;
+  Type type = 4;
+  /* optional */ Metadata metadata = 5;
+  /* optional */ Value value = 6;
+}
+
+message ServiceInformation {
+  string name = 1;
+  string uuid = 2;
+  ServiceType service_type = 3;
+  repeated CharacteristicInformation characteristics = 4;
+  bool is_primary = 5;
+  bool is_interactive = 6;
+  /* optional */ ServiceType associated_service_type = 7;
+  repeated NameUuidPair linked_services = 8;
+}
+
+message AccessoryInformation {
+  enum Category {
+    INVALID_CATEGORY = 0;
+    LIGHT_BULB = 1;
+    OUTLET = 2;
+    PROGRAMMABLE_SWITCH = 3;
+    SWITCH = 4;
+    FAN = 5;
+    AIR_PURIFIER = 6;
+    THERMOSTAT = 7;
+    AIR_CONDITIONER = 8;
+    DEHUMIDIFIER = 9;
+    WINDOW = 10;
+    WINDOW_COVERING = 11;
+    DOOR = 12;
+    DOOR_LOCK = 13;
+    DOOR_OPENER = 14;
+    VIDEO_DOORBELL = 15;
+    SENSOR = 16;
+    SECURITY_SYSTEM = 17;
+    IP_CAMERA = 18;
+    SPRINKLER = 19;
+    FAUCET = 20;
+    SHOWER_HEAD = 21;
+    BRIDGE = 22;
+    RANGE_EXTENDER = 23;
+    OTHER = 24;
+  }
+
+  string name = 1;
+  string uuid = 2;
+  Category category = 3;
+  /* optional */ NameUuidPair room = 4;
+  repeated AccessoryProfileInformation profiles = 5;
+  bool is_reachable = 6;
+  bool is_blocked = 7;
+  bool supports_identify = 8;
+  repeated ServiceInformation services = 9;
+  bool is_bridged = 10;
+  repeated string bridged_accessory_uuids = 11;
+  string firmware_version = 12;
+  string manufacturer = 13;
+  string model = 14;
+  NameUuidPair accessory = 15;
+}
+
+message RoomInformation {
+  string name = 1;
+  string uuid = 2;
+  string home = 3;
+  repeated NameUuidPair accessories = 4;
+}
+
+message ZoneInformation {
+  string name = 1;
+  string uuid = 2;
+  repeated NameUuidPair rooms = 3;
+}
+
+message ServiceGroupInformation {
+  string name = 1;
+  string uuid = 2;
+  repeated NameUuidPair services = 3;
+}
+
+message ActionSetInformation {
+  enum Type {
+    INVALID_ACTION_SET_TYPE = 0;
+    HOME_ARRIVAL = 1;
+    HOME_DEPARTURE = 2;
+    SLEEP = 3;
+    WAKE_UP = 4;
+    USER_DEFINED = 5;
+    TRIGGER_OWNED = 6;
+  }
+
+  message CharacteristicAction {
+    string uuid = 1;
+    CharacteristicInformation characteristic = 2;
+  }
+
+  message GenericAction {
+    string uuid = 1;
+  }
+
+  string name = 1;
+  string uuid = 2;
+  Type type = 3;
+  oneof action {
+    CharacteristicAction characteristic_action = 4;
+    GenericAction generic_action = 5;
+  }
+  bool is_executing = 6;
+}
+
+message TriggerInformation {
+  string name = 1;
+  string uuid = 2;
+  bool is_enabled = 3;
+  repeated NameUuidPair action_sets = 4;
+}
+
+message HomeInformation {
+  enum HomeHubState {
+    INVALID_HOME_HUB_STATE = 0;
+    CONNECTED = 1;
+    DISCONNECTED = 2;
+    NOT_AVAILABLE = 3;
+  }
+
+  string name = 1;
+  string uuid = 2;
+  bool is_primary = 3;
+  HomeHubState hub_state = 4;
+  repeated NameUuidPair accessories = 5;
+  repeated NameUuidPair rooms = 6;
+  repeated NameUuidPair zones = 7;
+  repeated NameUuidPair service_groups = 8;
+  repeated NameUuidPair action_sets = 9;
+  repeated NameUuidPair triggers = 10;
+}
+
 message EnumerateHomesRequest {
   string name_filter = 1;
 }
@@ -9,19 +398,78 @@ message EnumerateHomesResponse {
   repeated HomeInformation homes = 1;
 }
 
-message HomeInformation {
-  enum HomeHubState {
-    CONNECTED = 0;
-    DISCONNECTED = 1;
-    NOT_AVAILABLE = 2;
-  }
+message EnumerateRoomsRequest {
+  string home = 1;
+  string name_filter = 2;
+}
 
-  string name = 1;
-  bool is_primary = 2;
-  HomeHubState hub_state = 3;
-  string uuid = 4;
+message EnumerateRoomsResponse {
+  repeated RoomInformation rooms = 1;
+}
+
+message EnumerateZonesRequest {
+  string home = 1;
+  string room_filter = 3;
+  string name_filter = 2;
+}
+
+message EnumerateZonesResponse {
+  repeated ZoneInformation zones = 1;
+}
+
+message EnumerateAccessoriesRequest {
+  string home = 1;
+  string zone_filter = 2;
+  string room_filter = 3;
+  string name_filter = 4;
+}
+
+message EnumerateAccessoriesResponse {
+  repeated AccessoryInformation accessories = 1;
+}
+
+message EnumerateServiceGroupsRequest {
+  string home = 1;
+  repeated string types = 2;
+  string name_filter = 3;
+}
+
+message EnumerateServiceGroupsResponse {
+  repeated ServiceGroupInformation service_groups = 1;
+}
+
+message EnumerateActionSetsRequest {
+  string home = 1;
+  string name_filter = 2;
+}
+
+message EnumerateActionSetsResponse {
+  repeated ActionSetInformation action_sets = 1;
+}
+
+message EnumerateTriggersRequest {
+  message TimeFilter {
+    enum Mode {
+      UNTIL = 0;
+      SINCE = 1;
+    }
+  }
+  string home = 1;
+  string name_filter = 2;
+  /* optional */ bool enabled_filter = 3;
+  /* optional */ TimeFilter time_filter = 4;
+}
+
+message EnumerateTriggersResponse {
+  repeated TriggerInformation triggers = 1;
 }
 
 service HomeKitService {
   rpc EnumerateHomes(EnumerateHomesRequest) returns (EnumerateHomesResponse);
+  rpc EnumerateRooms(EnumerateRoomsRequest) returns (EnumerateRoomsResponse);
+  rpc EnumerateZones(EnumerateZonesRequest) returns (EnumerateZonesResponse);
+  rpc EnumerateAccessories(EnumerateAccessoriesRequest) returns (EnumerateAccessoriesResponse);
+  rpc EnumerateServiceGroups(EnumerateServiceGroupsRequest) returns (EnumerateServiceGroupsResponse);
+  rpc EnumerateActionSets(EnumerateActionSetsRequest) returns (EnumerateActionSetsResponse);
+  rpc EnumerateTriggers(EnumerateTriggersRequest) returns (EnumerateTriggersResponse);
 }
