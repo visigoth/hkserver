@@ -62,6 +62,10 @@ struct HomeKitServiceError : Error {
     }
     
     public static let nyi = HomeKitServiceError(code: .unimplemented, message: "NYI")
+    
+    public static func homeNotFound(pattern: String?) -> HomeKitServiceError {
+        return HomeKitServiceError(code: .notFound, message: "Could not find a home matching '\(pattern ?? "nil")'")
+    }
 }
 
 extension HomeKitServiceError : GRPCStatusTransformable {
@@ -77,7 +81,7 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         self.homeManager = homeManager
     }
     
-    internal func findHome(pattern: String?) throws -> HMHome? {
+    internal func findHome(pattern: String?) -> HMHome? {
         guard let pattern = pattern else {
             return homeManager.primaryHome
         }
@@ -86,8 +90,12 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             return homeManager.primaryHome
         }
 
-        let filter = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-        return homeManager.homes.first { $0.matches(filter: filter) }
+        do {
+            let filter = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+            return homeManager.homes.first { $0.matches(filter: filter) }
+        } catch {
+            return nil
+        }
     }
 
     // ========== Org_Hkserver_HomeKitServiceProvider ============
@@ -120,7 +128,27 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func enumerateRooms(request: Org_Hkserver_EnumerateRoomsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateRoomsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+        
+        let roomInfos = home.rooms.map { (room: HMRoom) -> Org_Hkserver_RoomInformation in
+            var ri = Org_Hkserver_RoomInformation()
+            ri.name = room.name
+            ri.uuid = room.uuid
+            ri.home = home.name
+            ri.accessories = room.accessories.map { (accessory: HMAccessory) -> Org_Hkserver_NameUuidPair in
+                var pair = Org_Hkserver_NameUuidPair()
+                pair.name = accessory.name
+                pair.uuid = accessory.uuid
+                return pair
+            }
+            return ri
+        }
+        
+        var response = Org_Hkserver_EnumerateRoomsResponse()
+        response.rooms = roomInfos
+        return context.eventLoop.makeSucceededFuture(response)
     }
     
     func enumerateZones(request: Org_Hkserver_EnumerateZonesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateZonesResponse> {
