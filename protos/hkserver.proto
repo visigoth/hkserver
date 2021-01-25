@@ -404,7 +404,8 @@ message EnumerateRoomsRequest {
 }
 
 message EnumerateRoomsResponse {
-  repeated RoomInformation rooms = 1;
+  NameUuidPair home = 1;
+  repeated RoomInformation rooms = 2;
 }
 
 message EnumerateZonesRequest {
@@ -414,7 +415,8 @@ message EnumerateZonesRequest {
 }
 
 message EnumerateZonesResponse {
-  repeated ZoneInformation zones = 1;
+  NameUuidPair home = 1;
+  repeated ZoneInformation zones = 2;
 }
 
 message EnumerateAccessoriesRequest {
@@ -425,7 +427,8 @@ message EnumerateAccessoriesRequest {
 }
 
 message EnumerateAccessoriesResponse {
-  repeated AccessoryInformation accessories = 1;
+  NameUuidPair home = 1;
+  repeated AccessoryInformation accessories = 2;
 }
 
 message EnumerateServiceGroupsRequest {
@@ -435,7 +438,8 @@ message EnumerateServiceGroupsRequest {
 }
 
 message EnumerateServiceGroupsResponse {
-  repeated ServiceGroupInformation service_groups = 1;
+  NameUuidPair home = 1;
+  repeated ServiceGroupInformation service_groups = 2;
 }
 
 message EnumerateActionSetsRequest {
@@ -444,7 +448,8 @@ message EnumerateActionSetsRequest {
 }
 
 message EnumerateActionSetsResponse {
-  repeated ActionSetInformation action_sets = 1;
+  NameUuidPair home = 1;
+  repeated ActionSetInformation action_sets = 2;
 }
 
 message EnumerateTriggersRequest {
@@ -461,7 +466,8 @@ message EnumerateTriggersRequest {
 }
 
 message EnumerateTriggersResponse {
-  repeated TriggerInformation triggers = 1;
+  NameUuidPair home = 1;
+  repeated TriggerInformation triggers = 2;
 }
 
 service HomeKitService {
