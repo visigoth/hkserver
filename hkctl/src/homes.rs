@@ -1,4 +1,7 @@
 use clap::{ArgMatches};
+use std::boxed::Box;
+use std::future::Future;
+use std::pin::Pin;
 use tonic::transport::Channel;
 use crate::hkservice::home_kit_service_client::HomeKitServiceClient;
 use crate::hkservice::{EnumerateHomesRequest, EnumerateHomesResponse};
@@ -19,7 +22,7 @@ fn print_response(response: &EnumerateHomesResponse) {
     });
 }
 
-pub async fn command(_matches: &ArgMatches, mut client: HomeKitServiceClient<Channel>) -> Result<(), Box<dyn std::error::Error>> {
+async fn _run(_matches: ArgMatches, mut client: HomeKitServiceClient<Channel>) -> Result<(), Box<dyn std::error::Error>> {
     let response = client.enumerate_homes(
         EnumerateHomesRequest {
             name_filter: String::from("")
@@ -27,4 +30,8 @@ pub async fn command(_matches: &ArgMatches, mut client: HomeKitServiceClient<Cha
     ).await?.into_inner();
     print_response(&response);
     Ok(())
+}
+
+pub fn run(matches: ArgMatches, client: HomeKitServiceClient<Channel>) -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>>>> {
+    Box::pin(_run(matches, client))
 }

@@ -1,5 +1,6 @@
 mod hkservice;
 mod homes;
+mod rooms;
 
 use clap::{App, Arg, crate_version};
 use tonic::transport::{Channel, Uri};
@@ -28,16 +29,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .version(crate_version!())
         .about("Command line porcelain for HomeKit")
         .arg(Arg::new("v")
-             .short('c')
+             .short('v')
              .multiple(true)
              .about("Sets verbosity"))
         .arg(Arg::new("port")
+             .long("port")
              .short('p')
+             .value_name("PORT")
              .about("Local port to connect to"))
         .arg(Arg::new("home")
-             .about("Specify a home. Defaults to the primary home"))
+             .long("home")
+             .about("Specify a home. Defaults to the primary home")
+             .value_name("NAME OR UUID")
+             .global(true))
         .subcommand(App::new("homes")
-                    .about("Lists homes"));
+                    .about("Lists homes"))
+        .subcommand(App::new("rooms")
+                    .about("Lists rooms"));
 
     let matches = app.get_matches_mut();
     let port = match matches.value_of_t::<u32>("port") {
@@ -52,13 +60,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
     let client = HomeKitServiceClient::create("127.0.0.1", port).await?;
 
-    match matches.subcommand_name() {
-        Some("homes") => {
-            homes::command(matches.subcommand_matches("homes").unwrap(), client).await.unwrap();
-        },
-        _ => {
-            app.print_help()?
+    let subcommand_fn = matches.subcommand_name().map(|name| {
+        match name {
+            "homes" => homes::run,
+            "rooms" => rooms::run,
+            _ => panic!("Unrecognized subcommand name")
         }
+    });
+
+    if let Some(subcommand_fn) = subcommand_fn {
+        let args = matches.subcommand_matches(matches.subcommand_name().unwrap()).unwrap();
+        let result = subcommand_fn(args.clone(), client).await;
+        if let Err(ref error) = result {
+            match error.downcast_ref::<tonic::Status>() {
+                Some(e) => {
+                    println!("Error returned by server: {}", e);
+                    return result
+                },
+                None => return result,
+            }
+        }
+    } else {
+        app.print_help()?;
     }
     Ok(())
 }
