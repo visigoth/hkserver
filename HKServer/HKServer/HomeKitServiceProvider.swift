@@ -53,10 +53,20 @@ extension HMAction : NameOrUuidFilterable {}
 extension HMTrigger : NameOrUuidFilterable {}
 
 struct HomeKitServiceError : Error {
-    var message: String
+    var code: GRPCStatus.Code
+    var message: String?
     
-    init(message: String) {
+    init(code: GRPCStatus.Code, message: String?) {
+        self.code = code
         self.message = message
+    }
+    
+    public static let nyi = HomeKitServiceError(code: .unimplemented, message: "NYI")
+}
+
+extension HomeKitServiceError : GRPCStatusTransformable {
+    func makeGRPCStatus() -> GRPCStatus {
+        return GRPCStatus(code: .unimplemented, message: self.message)
     }
 }
 
@@ -110,26 +120,26 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func enumerateRooms(request: Org_Hkserver_EnumerateRoomsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateRoomsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
     
     func enumerateZones(request: Org_Hkserver_EnumerateZonesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateZonesResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
     
     func enumerateAccessories(request: Org_Hkserver_EnumerateAccessoriesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateAccessoriesResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
     
     func enumerateServiceGroups(request: Org_Hkserver_EnumerateServiceGroupsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateServiceGroupsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
     
     func enumerateActionSets(request: Org_Hkserver_EnumerateActionSetsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateActionSetsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
     
     func enumerateTriggers(request: Org_Hkserver_EnumerateTriggersRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateTriggersResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError(message: "NYI"))
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
 }
