@@ -184,7 +184,28 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func enumerateZones(request: Org_Hkserver_EnumerateZonesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateZonesResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+        
+        let zoneInfos = home.zones
+            .filter { $0.matches(pattern: request.nameFilter) }
+            .map { (zone: HMZone) -> Org_Hkserver_ZoneInformation in
+                var zi = Org_Hkserver_ZoneInformation()
+                zi.name = zone.name
+                zi.uuid = zone.uuid
+                zi.rooms = zone.rooms.map { (room: HMRoom) -> Org_Hkserver_NameUuidPair in
+                    var pair = Org_Hkserver_NameUuidPair()
+                    pair.name = room.name
+                    pair.uuid = room.uuid
+                    return pair
+                }
+                return zi
+            }
+        
+        var response = Org_Hkserver_EnumerateZonesResponse()
+        response.zones = zoneInfos
+        return context.eventLoop.makeSucceededFuture(response)
     }
     
     func enumerateAccessories(request: Org_Hkserver_EnumerateAccessoriesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateAccessoriesResponse> {

@@ -1,6 +1,7 @@
 mod hkservice;
 mod homes;
 mod rooms;
+mod zones;
 
 use clap::{App, Arg, crate_version};
 use tonic::transport::{Channel, Uri};
@@ -49,6 +50,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .arg(Arg::new("name")
                          .long("name")
                          .value_name("NAME OR UUID")
+                         .about("Name pattern filter")))
+        .subcommand(App::new("zones")
+                    .about("Lists zones")
+                    .arg(Arg::new("room")
+                         .long("room")
+                         .value_name("NAME OR UUID")
+                         .about("Room name pattern filter"))
+                    .arg(Arg::new("name")
+                         .long("name")
+                         .value_name("NAME OR UUID")
                          .about("Name pattern filter")));
 
     let matches = app.get_matches_mut();
@@ -68,6 +79,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match name {
             "homes" => homes::run,
             "rooms" => rooms::run,
+            "zones" => zones::run,
             _ => panic!("Unrecognized subcommand name")
         }
     });
