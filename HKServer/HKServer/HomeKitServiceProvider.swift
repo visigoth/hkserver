@@ -10,17 +10,36 @@ import GRPC
 import HomeKit
 import NIO
 
-protocol NameOrUuidFilterable {
-    var name: String? { get }
+protocol FilterableName {
+    var filterableName: String? { get }
+}
+
+protocol NoNameProperty : FilterableName {
+}
+
+extension NoNameProperty {
+    var filterableName: String? {
+        get { return nil }
+    }
+}
+protocol WithNameProperty : FilterableName {
+    var name: String { get }
+}
+
+extension WithNameProperty {
+    var filterableName: String? {
+        get { return self.name }
+    }
+}
+
+protocol NameOrUuidFilterable : FilterableName {
     var uuid: String { get }
     var uniqueIdentifier: UUID { get }
     func matches(filter: NSRegularExpression?) -> Bool
+    func matches(pattern: String?) -> Bool
 }
 
 extension NameOrUuidFilterable {
-    var name: String? {
-        get { return nil }
-    }
     var uuid: String {
         get { return self.uniqueIdentifier.uuidString }
     }
@@ -29,7 +48,7 @@ extension NameOrUuidFilterable {
             return true
         }
         let uuid = self.uuid
-        if let name = self.name {
+        if let name = self.filterableName {
             let range = NSRange(location: 0, length: name.count)
             if filter.matches(in: name, range: range).count != 0 {
                 return true
@@ -38,19 +57,28 @@ extension NameOrUuidFilterable {
         let range = NSRange(location: 0, length: uuid.count)
         return filter.matches(in: uuid, range: range).count != 0
     }
+    func matches(pattern: String?) -> Bool {
+        var filter: NSRegularExpression?
+        if let pattern = pattern {
+            if pattern.count != 0 {
+                filter = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+            }
+        }
+        return matches(filter: filter)
+    }
 }
 
-extension HMHome : NameOrUuidFilterable {}
-extension HMRoom : NameOrUuidFilterable {}
-extension HMAccessory : NameOrUuidFilterable {}
-extension HMAccessoryProfile : NameOrUuidFilterable {}
-extension HMService : NameOrUuidFilterable {}
-extension HMCharacteristic : NameOrUuidFilterable {}
-extension HMZone : NameOrUuidFilterable {}
-extension HMServiceGroup : NameOrUuidFilterable {}
-extension HMActionSet : NameOrUuidFilterable {}
-extension HMAction : NameOrUuidFilterable {}
-extension HMTrigger : NameOrUuidFilterable {}
+extension HMHome : NameOrUuidFilterable, WithNameProperty {}
+extension HMRoom : NameOrUuidFilterable, WithNameProperty {}
+extension HMAccessory : NameOrUuidFilterable, WithNameProperty {}
+extension HMAccessoryProfile : NameOrUuidFilterable, NoNameProperty {}
+extension HMService : NameOrUuidFilterable, WithNameProperty {}
+extension HMCharacteristic : NameOrUuidFilterable, NoNameProperty {}
+extension HMZone : NameOrUuidFilterable, WithNameProperty {}
+extension HMServiceGroup : NameOrUuidFilterable, WithNameProperty {}
+extension HMActionSet : NameOrUuidFilterable, WithNameProperty {}
+extension HMAction : NameOrUuidFilterable, NoNameProperty {}
+extension HMTrigger : NameOrUuidFilterable, WithNameProperty {}
 
 struct HomeKitServiceError : Error {
     var code: GRPCStatus.Code
@@ -104,7 +132,9 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
 
     func enumerateHomes(request: Org_Hkserver_EnumerateHomesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateHomesResponse> {
         let homes = homeManager.homes
-        let homeInfos = homes.map({(home: HMHome) -> Org_Hkserver_HomeInformation in
+        let homeInfos = homes
+            .filter { $0.matches(pattern: request.nameFilter) }
+            .map({(home: HMHome) -> Org_Hkserver_HomeInformation in
             var hi = Org_Hkserver_HomeInformation()
             hi.name = home.name
             hi.isPrimary = home.isPrimary

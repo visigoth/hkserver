@@ -22,10 +22,10 @@ fn print_response(response: &EnumerateHomesResponse) {
     });
 }
 
-async fn _run(_matches: ArgMatches, mut client: HomeKitServiceClient<Channel>) -> Result<(), Box<dyn std::error::Error>> {
+async fn _run(matches: ArgMatches, mut client: HomeKitServiceClient<Channel>) -> Result<(), Box<dyn std::error::Error>> {
     let response = client.enumerate_homes(
         EnumerateHomesRequest {
-            name_filter: String::from("")
+            name_filter: matches.value_of("home").unwrap_or("").to_string(),
         }
     ).await?.into_inner();
     print_response(&response);
