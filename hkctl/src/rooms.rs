@@ -26,7 +26,7 @@ async fn _run(matches: ArgMatches, mut client: HomeKitServiceClient<Channel>) ->
     let response = client.enumerate_rooms(
         EnumerateRoomsRequest {
             home: matches.value_of("home").unwrap_or("").to_string(),
-            name_filter: "".to_string(),
+            name_filter: matches.value_of("name").unwrap_or("").to_string(),
         }).await?.into_inner();
     print_response(&response);
     Ok(())

@@ -45,7 +45,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .subcommand(App::new("homes")
                     .about("Lists homes"))
         .subcommand(App::new("rooms")
-                    .about("Lists rooms"));
+                    .about("Lists rooms")
+                    .arg(Arg::new("name")
+                         .long("name")
+                         .value_name("NAME OR UUID")
+                         .about("Name pattern filter")));
 
     let matches = app.get_matches_mut();
     let port = match matches.value_of_t::<u32>("port") {

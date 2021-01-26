@@ -162,7 +162,9 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
         }
         
-        let roomInfos = home.rooms.map { (room: HMRoom) -> Org_Hkserver_RoomInformation in
+        let roomInfos = home.rooms
+            .filter { $0.matches(pattern: request.nameFilter) }
+            .map { (room: HMRoom) -> Org_Hkserver_RoomInformation in
             var ri = Org_Hkserver_RoomInformation()
             ri.name = room.name
             ri.uuid = room.uuid
