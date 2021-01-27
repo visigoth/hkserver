@@ -2,6 +2,7 @@ mod hkservice;
 mod homes;
 mod rooms;
 mod zones;
+mod accessories;
 
 use clap::{App, Arg, crate_version};
 use tonic::transport::{Channel, Uri};
@@ -26,6 +27,18 @@ impl HomeKitServiceClient<Channel> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let room_arg = Arg::new("room")
+        .long("room")
+        .value_name("NAME OR UUID")
+        .about("Room name pattern filter");
+    let name_arg = Arg::new("name")
+        .long("name")
+        .value_name("NAME OR UUID")
+        .about("Name pattern filter");
+    let zone_arg = Arg::new("zone")
+        .long("zone")
+        .value_name("NAME OR UUID")
+        .about("Zone name pattern filter");
     let mut app = App::new("hkctl")
         .version(crate_version!())
         .about("Command line porcelain for HomeKit")
@@ -47,20 +60,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .about("Lists homes"))
         .subcommand(App::new("rooms")
                     .about("Lists rooms")
-                    .arg(Arg::new("name")
-                         .long("name")
-                         .value_name("NAME OR UUID")
-                         .about("Name pattern filter")))
+                    .arg(name_arg.clone()))
         .subcommand(App::new("zones")
                     .about("Lists zones")
-                    .arg(Arg::new("room")
-                         .long("room")
-                         .value_name("NAME OR UUID")
-                         .about("Room name pattern filter"))
-                    .arg(Arg::new("name")
-                         .long("name")
-                         .value_name("NAME OR UUID")
-                         .about("Name pattern filter")));
+                    .arg(room_arg.clone())
+                    .arg(name_arg.clone()))
+        .subcommand(App::new("accessories")
+                    .about("Lists accessories")
+                    .arg(room_arg.clone())
+                    .arg(name_arg.clone())
+                    .arg(zone_arg.clone()));
 
     let matches = app.get_matches_mut();
     let port = match matches.value_of_t::<u32>("port") {
@@ -80,6 +89,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "homes" => homes::run,
             "rooms" => rooms::run,
             "zones" => zones::run,
+            "accessories" => accessories::run,
             _ => panic!("Unrecognized subcommand name")
         }
     });
