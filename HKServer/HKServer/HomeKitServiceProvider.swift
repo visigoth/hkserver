@@ -145,21 +145,11 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
         }
         
-        let roomInfos = home.rooms
-            .filter { $0.matches(pattern: request.nameFilter) }
-            .map { (room: HMRoom) -> Org_Hkserver_RoomInformation in
-            var ri = Org_Hkserver_RoomInformation()
-            ri.name = room.name
-            ri.uuid = room.uuid
-            ri.home = home.name
-            ri.accessories = room.accessories.map { (accessory: HMAccessory) -> Org_Hkserver_NameUuidPair in
-                var pair = Org_Hkserver_NameUuidPair()
-                pair.name = accessory.name
-                pair.uuid = accessory.uuid
-                return pair
-            }
-            return ri
-        }
+        let transform = { HomeKitServiceProvider.roomInfoFromRoom(home: home, room: $0) }
+        var roomInfos : Array<Org_Hkserver_RoomInformation> = [transform(home.roomForEntireHome())]
+        roomInfos.append(contentsOf: home.rooms
+                            .filter { $0.matches(pattern: request.nameFilter) }
+                            .map { transform($0) } )
         
         var response = Org_Hkserver_EnumerateRoomsResponse()
         response.rooms = roomInfos
@@ -206,10 +196,26 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     func enumerateTriggers(request: Org_Hkserver_EnumerateTriggersRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateTriggersResponse> {
         return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
-    
+
     // ============== Helpers ============
-    
+
     internal func findHome(pattern: String?) -> HMHome? {
+        guard let pattern = pattern else {
+            return homeManager.primaryHome
+        }
+
+        if pattern.count == 0 {
+            return homeManager.primaryHome
+        }
+
+        do {
+            let filter = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+            return homeManager.homes.first { $0.matches(filter: filter) }
+        } catch {
+            return nil
+        }
+    }
+
     internal class func roomInfoFromRoom(home: HMHome, room: HMRoom) -> Org_Hkserver_RoomInformation {
         var ri = Org_Hkserver_RoomInformation()
         ri.name = room.name

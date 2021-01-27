@@ -10,7 +10,7 @@ fn print_response(response: &EnumerateRoomsResponse) {
     if let Some(ref home) = &response.home {
         println!("Home: {}", home.name);
     }
-    println!("Rooms:");
+    println!("Rooms ({}):", response.rooms.len());
     response.rooms.iter().for_each(|room| {
         println!("  Room: {}", room.name);
         println!("    UUID:         {}", room.uuid);
