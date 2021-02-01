@@ -251,7 +251,26 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
 
     func enumerateActionSets(request: Org_Hkserver_EnumerateActionSetsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateActionSetsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+        
+        let builtinActionSetTypes = [
+            HMActionSetTypeSleep,
+            HMActionSetTypeWakeUp,
+            HMActionSetTypeHomeArrival,
+            HMActionSetTypeUserDefined,
+            HMActionSetTypeTriggerOwned,
+            HMActionSetTypeHomeDeparture,
+        ];
+        let builtinActionSets = builtinActionSetTypes.compactMap { home.builtinActionSet(ofType: $0) }
+        let actionSets = [builtinActionSets, home.actionSets].joined()
+        let actionSetInfos = actionSets.map { HomeKitServiceProvider.actionSetInformation(actionSet: $0) }
+        
+        var response = Org_Hkserver_EnumerateActionSetsResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.actionSets = actionSetInfos
+        return context.eventLoop.makeSucceededFuture(response)
     }
     
     func enumerateTriggers(request: Org_Hkserver_EnumerateTriggersRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateTriggersResponse> {
@@ -391,6 +410,52 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         return sgi
     }
     
+    internal class func actionSetInformation(actionSet: HMActionSet) -> Org_Hkserver_ActionSetInformation {
+        var asi = Org_Hkserver_ActionSetInformation()
+        asi.name = actionSet.name
+        asi.uuid = actionSet.uuid
+        asi.actionSetType = actionSetType(actionSetType: actionSet.actionSetType)
+        asi.isExecuting = actionSet.isExecuting
+        asi.actions = actionSet.actions.map {
+            if let action = $0 as? HMCharacteristicWriteAction<NSCopying> {
+                return characteristicActionInformation(action: action)
+            } else {
+                return genericActionInformation(action: $0)
+            }
+        }
+        return asi
+    }
+    
+    internal class func actionSetType(actionSetType: String) -> Org_Hkserver_ActionSetInformation.ActionSetType {
+        switch actionSetType {
+        case HMActionSetTypeSleep: return .sleep
+        case HMActionSetTypeWakeUp: return .wakeUp
+        case HMActionSetTypeHomeDeparture: return .homeDeparture
+        case HMActionSetTypeHomeArrival: return .homeArrival
+        case HMActionSetTypeTriggerOwned: return .triggerOwned
+        case HMActionSetTypeUserDefined: return .userDefined
+        default:
+            return .invalidActionSetType
+        }
+    }
+    
+    internal class func characteristicActionInformation(action: HMCharacteristicWriteAction<NSCopying>) -> Org_Hkserver_ActionSetInformation.Action {
+        var ca = Org_Hkserver_ActionSetInformation.CharacteristicAction()
+        ca.uuid = (action as HMAction).uuid
+        ca.characteristic = characteristicInfo(characteristic: action.characteristic)
+        var a = Org_Hkserver_ActionSetInformation.Action()
+        a.characteristicAction = ca
+        return a
+    }
+
+    internal class func genericActionInformation(action: HMAction) -> Org_Hkserver_ActionSetInformation.Action {
+        var ga = Org_Hkserver_ActionSetInformation.GenericAction()
+        ga.uuid = action.uuid
+        var a = Org_Hkserver_ActionSetInformation.Action()
+        a.genericAction = ga
+        return a
+    }
+
     internal class func nameUuidPair(obj: NameOrUuidFilterable) -> Org_Hkserver_NameUuidPair {
         var nup = Org_Hkserver_NameUuidPair()
         nup.name = obj.filterableName ?? ""

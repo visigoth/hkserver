@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 use tonic::transport::Channel;
 use crate::hkservice::home_kit_service_client::HomeKitServiceClient;
-use crate::hkservice::{EnumerateServicesRequest, EnumerateServicesResponse, ServiceInformation, ServiceType};
+use crate::hkservice::{EnumerateServicesRequest, EnumerateServicesResponse, ServiceInformation, ServiceType, CharacteristicInformation};
 
 fn servicetype_from_str(s: &str) -> ServiceType {
     match s {
@@ -54,6 +54,39 @@ fn servicetype_from_str(s: &str) -> ServiceType {
     }
 }
 
+pub fn print_characteristic(c: &CharacteristicInformation, indent: usize) {
+    let prefix = " ".repeat(indent);
+    println!("{}Characteristic: {}", prefix, c.uuid);
+    println!("{}  Description: {}", prefix, c.description);
+    let properties = c.properties().map(|x| x.to_string()).collect::<Vec<String>>().join(", prefix,");
+    println!("{}  Properties: {}", prefix, properties);
+    println!("{}  Type: {}", prefix, c.characteristic_type());
+    if let Some(ref metadata) = c.metadata {
+        println!("{}  Metadata:", prefix);
+        println!("{}    Manufacturer Description: {}", prefix, metadata.manufacturer_description);
+        if metadata.valid_values.len() != 0 {
+            println!("{}    Valid Values: ({})", prefix, metadata.valid_values.len());
+            metadata.valid_values.iter().for_each(|v| {
+                println!("{}      {}", prefix, v);
+            });
+        }
+        if let Some(ref min_val) = metadata.minimum_value {
+            println!("{}    Minimum: {}", prefix, min_val);
+        }
+        if let Some(ref max_val) = metadata.maximum_value {
+            println!("{}    Maximum: {}", prefix, max_val);
+        }
+        if let Some(ref step_val) = metadata.step_value {
+            println!("{}    Step: {}", prefix, step_val);
+        }
+        println!("{}    Format: {}", prefix, metadata.format());
+        println!("{}    Units: {}", prefix, metadata.units());
+    }
+    if let Some(ref value) = c.value {
+        println!("{}  Last Value: {}", prefix, value);
+    }
+}
+
 pub fn print_service(service: &ServiceInformation, indent: usize) {
     let prefix = " ".repeat(indent);
     println!("{}Service: {}", prefix, service.name);
@@ -64,35 +97,7 @@ pub fn print_service(service: &ServiceInformation, indent: usize) {
     println!("{}  Associated Service Type: {}", prefix, service.associated_service_type);
     println!("{}  Characteristics: ({})", prefix, service.characteristics.len());
     service.characteristics.iter().for_each(|c| {
-        println!("{}    Characteristic: {}", prefix, c.uuid);
-        println!("{}      Description: {}", prefix, c.description);
-        let properties = c.properties().map(|x| x.to_string()).collect::<Vec<String>>().join(", prefix,");
-        println!("{}      Properties: {}", prefix, properties);
-        println!("{}      Type: {}", prefix, c.characteristic_type());
-        if let Some(ref metadata) = c.metadata {
-            println!("{}      Metadata:", prefix);
-            println!("{}        Manufacturer Description: {}", prefix, metadata.manufacturer_description);
-            if metadata.valid_values.len() != 0 {
-                println!("{}        Valid Values: ({})", prefix, metadata.valid_values.len());
-                metadata.valid_values.iter().for_each(|v| {
-                    println!("{}          {}", prefix, v);
-                });
-            }
-            if let Some(ref min_val) = metadata.minimum_value {
-                println!("{}        Minimum: {}", prefix, min_val);
-            }
-            if let Some(ref max_val) = metadata.maximum_value {
-                println!("{}        Maximum: {}", prefix, max_val);
-            }
-            if let Some(ref step_val) = metadata.step_value {
-                println!("{}        Step: {}", prefix, step_val);
-            }
-            println!("{}        Format: {}", prefix, metadata.format());
-            println!("{}        Units: {}", prefix, metadata.units());
-        }
-        if let Some(ref value) = c.value {
-            println!("{}      Last Value: {}", prefix, value);
-        }
+        print_characteristic(c, indent + 4);
     });
 }
 

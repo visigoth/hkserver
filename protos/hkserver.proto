@@ -338,7 +338,7 @@ message ServiceGroupInformation {
 }
 
 message ActionSetInformation {
-  enum Type {
+  enum ActionSetType {
     INVALID_ACTION_SET_TYPE = 0;
     HOME_ARRIVAL = 1;
     HOME_DEPARTURE = 2;
@@ -351,20 +351,25 @@ message ActionSetInformation {
   message CharacteristicAction {
     string uuid = 1;
     CharacteristicInformation characteristic = 2;
+    // TODO: figure out how to represent target value 
   }
 
   message GenericAction {
     string uuid = 1;
   }
 
+  message Action {
+    oneof action {
+      CharacteristicAction characteristic_action = 1;
+      GenericAction generic_action = 2;
+    }
+  }
+
   string name = 1;
   string uuid = 2;
-  Type type = 3;
-  oneof action {
-    CharacteristicAction characteristic_action = 4;
-    GenericAction generic_action = 5;
-  }
-  bool is_executing = 6;
+  ActionSetType action_set_type = 3;
+  repeated Action actions = 4;
+  bool is_executing = 5;
 }
 
 message TriggerInformation {
