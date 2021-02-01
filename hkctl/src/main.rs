@@ -3,6 +3,7 @@ mod homes;
 mod rooms;
 mod zones;
 mod accessories;
+mod services;
 mod service_groups;
 
 use clap::{App, Arg, crate_version};
@@ -71,8 +72,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .arg(room_arg.clone())
                     .arg(name_arg.clone())
                     .arg(zone_arg.clone()))
+        .subcommand(App::new("services")
+                    .about("Lists services")
+                    .arg(name_arg.clone())
+                    .arg(Arg::new("type")
+                         .long("type")
+                         .short('t')
+                         .takes_value(true)
+                         .multiple(true)))
         .subcommand(App::new("servicegroups")
                     .about("Lists service groups")
+                    .arg(name_arg.clone()))
+        .subcommand(App::new("services")
+                    .about("Lists services")
                     .arg(name_arg.clone()));
 
     let matches = app.get_matches_mut();
@@ -95,6 +107,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "zones" => zones::run,
             "accessories" => accessories::run,
             "servicegroups" => service_groups::run,
+            "services" => services::run,
             _ => panic!("Unrecognized subcommand name")
         }
     });

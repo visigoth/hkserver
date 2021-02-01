@@ -445,6 +445,17 @@ message EnumerateServiceGroupsResponse {
   repeated ServiceGroupInformation service_groups = 2;
 }
 
+message EnumerateServicesRequest {
+  string home = 1;
+  repeated ServiceType types = 2;
+  string name_filter = 3;
+}
+
+message EnumerateServicesResponse {
+  NameUuidPair home = 1;
+  repeated ServiceInformation services = 2;
+}
+
 message EnumerateActionSetsRequest {
   string home = 1;
   string name_filter = 2;
@@ -479,6 +490,7 @@ service HomeKitService {
   rpc EnumerateZones(EnumerateZonesRequest) returns (EnumerateZonesResponse);
   rpc EnumerateAccessories(EnumerateAccessoriesRequest) returns (EnumerateAccessoriesResponse);
   rpc EnumerateServiceGroups(EnumerateServiceGroupsRequest) returns (EnumerateServiceGroupsResponse);
+  rpc EnumerateServices(EnumerateServicesRequest) returns (EnumerateServicesResponse);
   rpc EnumerateActionSets(EnumerateActionSetsRequest) returns (EnumerateActionSetsResponse);
   rpc EnumerateTriggers(EnumerateTriggersRequest) returns (EnumerateTriggersResponse);
 }

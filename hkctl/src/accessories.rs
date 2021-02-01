@@ -13,7 +13,7 @@ use crate::hkservice::characteristic_information::Property as CharacteristicProp
 use crate::hkservice::characteristic_information::Format as CharacteristicFormat;
 use crate::hkservice::characteristic_information::Units as CharacteristicUnits;
 use crate::hkservice::{Number, number::Value, characteristic_information::value::Value as SampledValue};
-use std::vec::Vec;
+use crate::services::print_service;
 
 impl std::fmt::Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -111,44 +111,7 @@ fn print_response(response: &EnumerateAccessoriesResponse) {
         });
         println!("    Services: ({})", accessory.services.len());
         accessory.services.iter().for_each(|service| {
-            println!("      Service: {}", service.name);
-            println!("        UUID: {}", service.uuid);
-            println!("        Is Primary: {}", service.is_primary);
-            println!("        Is Interactive: {}", service.is_interactive);
-            println!("        Service Type: {}", service.service_type());
-            println!("        Associated Service Type: {}", service.associated_service_type);
-            println!("        Characteristics: ({})", service.characteristics.len());
-            service.characteristics.iter().for_each(|c| {
-                println!("          Characteristic: {}", c.uuid);
-                println!("            Description: {}", c.description);
-                let properties = c.properties().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
-                println!("            Properties: {}", properties);
-                println!("            Type: {}", c.characteristic_type());
-                if let Some(ref metadata) = c.metadata {
-                    println!("            Metadata:");
-                    println!("              Manufacturer Description: {}", metadata.manufacturer_description);
-                    if metadata.valid_values.len() != 0 {
-                        println!("              Valid Values: ({})", metadata.valid_values.len());
-                        metadata.valid_values.iter().for_each(|v| {
-                            println!("                {}", v);
-                        });
-                    }
-                    if let Some(ref min_val) = metadata.minimum_value {
-                        println!("              Minimum: {}", min_val);
-                    }
-                    if let Some(ref max_val) = metadata.maximum_value {
-                        println!("              Maximum: {}", max_val);
-                    }
-                    if let Some(ref step_val) = metadata.step_value {
-                        println!("              Step: {}", step_val);
-                    }
-                    println!("              Format: {}", metadata.format());
-                    println!("              Units: {}", metadata.units());
-                }
-                if let Some(ref value) = c.value {
-                    println!("            Last Value: {}", value);
-                }
-            });
+            print_service(service, 6);
         });
         if accessory.category() == Category::Bridge {
             println!("    Bridged Accessories: ({})", accessory.bridged_accessory_uuids.len());

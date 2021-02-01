@@ -225,6 +225,31 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         return context.eventLoop.makeSucceededFuture(response)
     }
 
+    func enumerateServices(request: Org_Hkserver_EnumerateServicesRequest, context: StatusOnlyCallContext) ->
+    EventLoopFuture<Org_Hkserver_EnumerateServicesResponse> {
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        var services: [HMService]
+        let typePatterns = request.types.compactMap { HomeKitServiceProvider.fromServiceType(serviceType: $0) }
+        if typePatterns.count != 0 {
+            services = home.servicesWithTypes(typePatterns) ?? []
+        } else {
+            services = home.accessories.flatMap { $0.services }
+        }
+        services = services
+            .filter { $0.matches(pattern: request.nameFilter) }
+
+        let serviceInfos = services
+            .map { HomeKitServiceProvider.serviceInformation(service: $0) }
+
+        var response = Org_Hkserver_EnumerateServicesResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.services = serviceInfos
+        return context.eventLoop.makeSucceededFuture(response)
+    }
+
     func enumerateActionSets(request: Org_Hkserver_EnumerateActionSetsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateActionSetsResponse> {
         return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
@@ -419,6 +444,57 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         case HMServiceTypeDoorbell: return .doorbell
         default:
             return .invalidServiceType
+        }
+    }
+    
+    internal class func fromServiceType(serviceType: Org_Hkserver_ServiceType) -> String? {
+        switch serviceType {
+        case .switch: return HMServiceTypeSwitch
+        case .thermostat: return HMServiceTypeThermostat
+        case .accessoryInformation: return HMServiceTypeAccessoryInformation
+        case .outlet: return HMServiceTypeOutlet
+        case .lockManagement: return HMServiceTypeLockManagement
+        case .airQualitySensor: return HMServiceTypeAirQualitySensor
+        case .carbonDioxideSensor: return HMServiceTypeCarbonDioxideSensor
+        case .carbonMonoxideSensor: return HMServiceTypeCarbonMonoxideSensor
+        case .contactSensor: return HMServiceTypeContactSensor
+        case .door: return HMServiceTypeDoor
+        case .humiditySensor: return HMServiceTypeHumidifierDehumidifier
+        case .leakSensor: return HMServiceTypeLeakSensor
+        case .lightSensor: return HMServiceTypeLightSensor
+        case .motionSensor: return HMServiceTypeMotionSensor
+        case .occupancySensor: return HMServiceTypeOccupancySensor
+        case .securitySystem: return HMServiceTypeSecuritySystem
+        case .statefulProgrammableSwitch: return HMServiceTypeStatefulProgrammableSwitch
+        case .statelessProgrammableSwitch: return HMServiceTypeStatelessProgrammableSwitch
+        case .smokeSensor: return HMServiceTypeSmokeSensor
+        case .temperatureSensor: return HMServiceTypeTemperatureSensor
+        case .window: return HMServiceTypeWindow
+        case .windowCovering: return HMServiceTypeWindowCovering
+        case .cameraRtpStreamManagement: return HMServiceTypeCameraRTPStreamManagement
+        case .cameraControl: return HMServiceTypeCameraControl
+        case .microphone: return HMServiceTypeMicrophone
+        case .speaker: return HMServiceTypeSpeaker
+        case .airPurifier: return HMServiceTypeAirPurifier
+        case .filterMaintenance: return HMServiceTypeFilterMaintenance
+        case .slats: return HMServiceTypeSlats
+        case .label: return HMServiceTypeLabel
+        case .irrigationSystem: return HMServiceTypeIrrigationSystem
+        case .valve: return HMServiceTypeValve
+        case .faucet: return HMServiceTypeFaucet
+        case .fan: return HMServiceTypeFan
+        case .garageDoorOpener: return HMServiceTypeGarageDoorOpener
+        case .lightBulb: return HMServiceTypeLightbulb
+        case .lockMechanism: return HMServiceTypeLockMechanism
+        case .battery: return HMServiceTypeBattery
+        case .ventilationFan: return HMServiceTypeVentilationFan
+        case .heaterCooler: return HMServiceTypeHeaterCooler
+        case .humidifierDehumidifier: return HMServiceTypeHumidifierDehumidifier
+        case .doorbell: return HMServiceTypeDoorbell
+        case .invalidServiceType:
+            fallthrough
+        default:
+            return nil
         }
     }
     
