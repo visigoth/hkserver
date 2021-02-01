@@ -3,6 +3,7 @@ mod homes;
 mod rooms;
 mod zones;
 mod accessories;
+mod service_groups;
 
 use clap::{App, Arg, crate_version};
 use tonic::transport::{Channel, Uri};
@@ -69,7 +70,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .about("Lists accessories")
                     .arg(room_arg.clone())
                     .arg(name_arg.clone())
-                    .arg(zone_arg.clone()));
+                    .arg(zone_arg.clone()))
+        .subcommand(App::new("servicegroups")
+                    .about("Lists service groups")
+                    .arg(name_arg.clone()));
 
     let matches = app.get_matches_mut();
     let port = match matches.value_of_t::<u32>("port") {
@@ -90,6 +94,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "rooms" => rooms::run,
             "zones" => zones::run,
             "accessories" => accessories::run,
+            "servicegroups" => service_groups::run,
             _ => panic!("Unrecognized subcommand name")
         }
     });

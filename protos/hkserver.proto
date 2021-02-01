@@ -437,8 +437,7 @@ message EnumerateAccessoriesResponse {
 
 message EnumerateServiceGroupsRequest {
   string home = 1;
-  repeated string types = 2;
-  string name_filter = 3;
+  string name_filter = 2;
 }
 
 message EnumerateServiceGroupsResponse {

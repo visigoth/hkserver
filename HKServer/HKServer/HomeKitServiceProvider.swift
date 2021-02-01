@@ -210,9 +210,21 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func enumerateServiceGroups(request: Org_Hkserver_EnumerateServiceGroupsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateServiceGroupsResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        let transform = { HomeKitServiceProvider.serviceGroupInformation(serviceGroup: $0) }
+        let serviceGroups = home.serviceGroups
+            .filter { $0.matches(pattern: request.nameFilter) }
+            .map { transform($0) }
+
+        var response = Org_Hkserver_EnumerateServiceGroupsResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.serviceGroups = serviceGroups
+        return context.eventLoop.makeSucceededFuture(response)
     }
-    
+
     func enumerateActionSets(request: Org_Hkserver_EnumerateActionSetsRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateActionSetsResponse> {
         return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
@@ -344,6 +356,14 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             si.accessory = nameUuidPair(obj: accessory)
         }
         return si
+    }
+    
+    internal class func serviceGroupInformation(serviceGroup: HMServiceGroup) -> Org_Hkserver_ServiceGroupInformation {
+        var sgi = Org_Hkserver_ServiceGroupInformation()
+        sgi.name = serviceGroup.name
+        sgi.uuid = serviceGroup.uuid
+        sgi.services = serviceGroup.services.map { nameUuidPair(obj: $0) }
+        return sgi
     }
     
     internal class func nameUuidPair(obj: NameOrUuidFilterable) -> Org_Hkserver_NameUuidPair {
