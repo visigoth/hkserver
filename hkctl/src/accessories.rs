@@ -12,7 +12,7 @@ use crate::hkservice::characteristic_information::CharacteristicType;
 use crate::hkservice::characteristic_information::Property as CharacteristicProperty;
 use crate::hkservice::characteristic_information::Format as CharacteristicFormat;
 use crate::hkservice::characteristic_information::Units as CharacteristicUnits;
-use crate::hkservice::{Number, number::Value, characteristic_information::value::Value as SampledValue};
+use crate::hkservice::{Number, number::Value, Value as SampledValue, value::Value as SampledValueEnum};
 use crate::services::print_service;
 
 impl std::fmt::Display for Category {
@@ -51,14 +51,14 @@ impl std::fmt::Display for CharacteristicUnits {
     }
 }
 
-impl std::fmt::Display for crate::hkservice::characteristic_information::Value {
+impl std::fmt::Display for SampledValue {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if let Some(ref value) = self.value {
             match value {
-                SampledValue::BoolValue(b) => write!(f, "{}", b),
-                SampledValue::StringValue(s) => write!(f, "{}", s),
-                SampledValue::NumberValue(n) => write!(f, "{}", n),
-                SampledValue::DataValue(d) => write!(f, "{{{}, b'{}'}}", d.len(), hex::encode(d)),
+                SampledValueEnum::BoolValue(b) => write!(f, "{}", b),
+                SampledValueEnum::StringValue(s) => write!(f, "{}", s),
+                SampledValueEnum::NumberValue(n) => write!(f, "{}", n),
+                SampledValueEnum::DataValue(d) => write!(f, "{{{}, b'{}'}}", d.len(), hex::encode(d)),
             }
         } else {
             write!(f, "<None>")

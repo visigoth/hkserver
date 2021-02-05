@@ -6,6 +6,7 @@ mod accessories;
 mod services;
 mod service_groups;
 mod action_sets;
+mod triggers;
 
 use clap::{App, Arg, crate_version};
 use tonic::transport::{Channel, Uri};
@@ -89,6 +90,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .arg(name_arg.clone()))
         .subcommand(App::new("actionsets")
                     .about("Lists action sets")
+                    .arg(name_arg.clone()))
+        .subcommand(App::new("triggers")
+                    .about("Lists triggers")
+                    .arg(Arg::new("enabled_filter")
+                         .long("enabled")
+                         .short('e')
+                         .possible_values(&["either", "true", "false"]))
+                    .arg(Arg::new("after")
+                         .long("after")
+                         .short('a'))
+                    .arg(Arg::new("before")
+                         .long("before")
+                         .short('b'))
                     .arg(name_arg.clone()));
 
     let matches = app.get_matches_mut();
@@ -113,6 +127,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "servicegroups" => service_groups::run,
             "services" => services::run,
             "actionsets" => action_sets::run,
+            "triggers" => triggers::run,
             _ => panic!("Unrecognized subcommand name")
         }
     });

@@ -15,6 +15,21 @@ message Number {
   }
 }
 
+message NumberRange {
+  /* optional */ Number min_value = 1;
+  /* optional */ Number max_value = 2;
+}
+
+message Value {
+  oneof value {
+    bool bool_value = 1;
+    string string_value = 2;
+    Number number_value = 3;
+    bytes data_value = 4;
+    // TODO: figure out array and dictionary values
+  }
+}
+
 message AccessoryProfileInformation {
   string uuid = 1;
   repeated NameUuidPair services = 2;
@@ -230,16 +245,6 @@ message CharacteristicInformation {
     MICROGRAMS_PER_CUBIC_METER = 8;
   }
 
-  message Value {
-    oneof value {
-      bool bool_value = 1;
-      string string_value = 2;
-      Number number_value = 3;
-      bytes data_value = 4;
-      // TODO: figure out array and dictionary values
-    }
-  }
-
   message Metadata {
     string manufacturer_description = 1;
     repeated Number valid_values = 2;
@@ -372,11 +377,139 @@ message ActionSetInformation {
   bool is_executing = 5;
 }
 
-message TriggerInformation {
+message CommonTriggerInformation {
   string name = 1;
   string uuid = 2;
   bool is_enabled = 3;
-  repeated NameUuidPair action_sets = 4;
+  /* optional */ uint64 last_fire_date = 4;
+  repeated NameUuidPair action_sets = 5;
+}
+
+enum Weekday {
+  INVALID_WEEKDAY = 0;
+  WEEKDAY_SUNDAY = 1;
+  WEEKDAY_MONDAY = 2;
+  WEEKDAY_TUESDAY = 3;
+  WEEKDAY_WEDNESDAY = 4;
+  WEEKDAY_THURSDAY = 5;
+  WEEKDAY_FRIDAY = 6;
+  WEEKDAY_SATURDAY = 7;
+}
+
+message Coordinate2D {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message CircularRegion {
+  Coordinate2D center = 1;
+  double radius = 2;
+}
+
+message LocationEventInformation {
+  string uuid = 1;
+  /* optional */ bool notify_on_entry = 2;
+  /* optional */ bool notify_on_exit = 3;
+  /* optional */ CircularRegion region = 4;
+}
+
+message CalendarEventInformation {
+  string uuid = 1;
+  uint64 fire_date = 2;
+}
+
+enum SignificantEvent {
+  INVALID_SIGNIFICANT_EVENT = 0;
+  SIGNIFICANT_EVENT_SUNRISE = 1;
+  SIGNIFICANT_EVENT_SUNSET = 2;
+}
+
+message SignificantTimeEventInformation {
+  string uuid = 1;
+  SignificantEvent significant_event = 2;
+  /* optional */ uint64 offset = 3;
+}
+
+message DurationEventInformation {
+  string uuid = 1;
+  double duration = 2;
+}
+
+message CharacteristicEventInformation {
+  string uuid = 1;
+  NameUuidPair characteristic = 2;
+  /* optional */ Value trigger_value = 3;
+}
+
+message CharacteristicThresholdRangeEventInformation {
+  string uuid = 1;
+  NameUuidPair characteristic = 2;
+  NumberRange range = 3;
+}
+
+enum PresenceEventType {
+  INVALID_PRESENCE_EVENT_TYPE = 0;
+  PRESENCE_EVENT_TYPE_EVERY_ENTRY = 1;
+  PRESENCE_EVENT_TYPE_EVERY_EXIT = 2;
+  PRESENCE_EVENT_TYPE_FIRST_ENTRY = 3;
+  PRESENCE_EVENT_TYPE_LAST_EXIT = 4;
+}
+
+enum PresenceEventUserType {
+  INVALID_PRESENCE_EVENT_USER_TYPE = 0;
+  PRESENCE_EVENT_USER_TYPE_CURRENT_USER = 1;
+  PRESENCE_EVENT_USER_TYPE_HOME_USERS = 2;
+  PRESENCE_EVENT_USER_TYPE_CUSTOM_USERS = 3;
+}
+
+message PresenceEventInformation {
+  string uuid = 1;
+  PresenceEventType presence_event = 2;
+  PresenceEventUserType presence_user = 3;
+}
+
+message EventInformation {
+  oneof event {
+    LocationEventInformation location_event = 1;
+    CalendarEventInformation calendar_event = 2;
+    SignificantTimeEventInformation significant_time_event = 3;
+    DurationEventInformation duration_event = 4;
+    CharacteristicEventInformation characteristic_event = 5;
+    CharacteristicThresholdRangeEventInformation characteristic_threshold_range_event = 6;
+    PresenceEventInformation presence_event = 7;
+  }
+}
+
+message EventTriggerInformation {
+  enum ActivationState {
+    INVALID_ACTIVATION_STATE = 0;
+    EVENT_TRIGGER_DISABLED = 1;
+    EVENT_TRIGGER_DISABLED_NO_COMPATIBLE_HOME_HUB = 2;
+    EVENT_TRIGGER_DISABLED_NO_HOME_HUB = 3;
+    EVENT_TRIGGER_DISABLED_NO_LOCATION_SERVICES_AUTHORIZATION = 4;
+    EVENT_TRIGGER_ENABLED = 5;
+  }
+
+  CommonTriggerInformation trigger = 1;
+  ActivationState activation_state = 2;
+  repeated EventInformation events = 3;
+  repeated EventInformation end_events = 4;
+  repeated Weekday recurrences = 5;
+  bool executes_once = 6;
+  // TODO: figure out how to represent predicates
+}
+
+message TimerTriggerInformation {
+  CommonTriggerInformation trigger = 1;
+  uint64 fire_date = 2;
+  /* optional */ uint64 recurrence = 3;
+}
+
+message TriggerInformation {
+  oneof trigger {
+    EventTriggerInformation event = 1;
+    TimerTriggerInformation timer = 2;
+  }
 }
 
 message HomeInformation {
@@ -472,16 +605,17 @@ message EnumerateActionSetsResponse {
 }
 
 message EnumerateTriggersRequest {
-  message TimeFilter {
-    enum Mode {
-      UNTIL = 0;
-      SINCE = 1;
-    }
+  enum EnabledFilter {
+    NO_FILTER = 0;
+    ENABLED_ONLY = 1;
+    DISABLED_ONLY = 2;
   }
+
   string home = 1;
   string name_filter = 2;
-  /* optional */ bool enabled_filter = 3;
-  /* optional */ TimeFilter time_filter = 4;
+  /* optional */ EnabledFilter enabled_filter = 3;
+  uint64 before = 4;
+  uint64 after = 5;
 }
 
 message EnumerateTriggersResponse {

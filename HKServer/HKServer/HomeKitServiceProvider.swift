@@ -79,6 +79,23 @@ extension HMServiceGroup : NameOrUuidFilterable, WithNameProperty {}
 extension HMActionSet : NameOrUuidFilterable, WithNameProperty {}
 extension HMAction : NameOrUuidFilterable, NoNameProperty {}
 extension HMTrigger : NameOrUuidFilterable, WithNameProperty {}
+extension HMLocationEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMCalendarEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMDurationEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMSignificantTimeEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMPresenceEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMCharacteristicEvent : NameOrUuidFilterable, NoNameProperty {}
+extension HMCharacteristicThresholdRangeEvent : NameOrUuidFilterable, NoNameProperty {}
+
+let Weekdays : [Org_Hkserver_Weekday] = [
+    .sunday,
+    .monday,
+    .tuesday,
+    .wednesday,
+    .thursday,
+    .friday,
+    .saturday,
+]
 
 struct HomeKitServiceError : Error {
     var code: GRPCStatus.Code
@@ -264,7 +281,11 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
             HMActionSetTypeHomeDeparture,
         ];
         let builtinActionSets = builtinActionSetTypes.compactMap { home.builtinActionSet(ofType: $0) }
-        let actionSets = [builtinActionSets, home.actionSets].joined()
+        let actionSets = [builtinActionSets, home.actionSets].joined().reduce([String: HMActionSet]()) { (dict, actionSet) -> [String: HMActionSet] in
+            var dict = dict
+            dict[actionSet.uuid] = actionSet
+            return dict
+        }.map { $1 }
         let actionSetInfos = actionSets.map { HomeKitServiceProvider.actionSetInformation(actionSet: $0) }
         
         var response = Org_Hkserver_EnumerateActionSetsResponse()
@@ -273,8 +294,44 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         return context.eventLoop.makeSucceededFuture(response)
     }
     
-    func enumerateTriggers(request: Org_Hkserver_EnumerateTriggersRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnumerateTriggersResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    func enumerateTriggers(request: Org_Hkserver_EnumerateTriggersRequest, context: StatusOnlyCallContext) ->
+        EventLoopFuture<Org_Hkserver_EnumerateTriggersResponse> {
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+        
+        var triggers = home.triggers
+            .filter { $0.matches(pattern: request.nameFilter) }
+        if request.enabledFilter != .noFilter {
+            triggers = triggers.filter {
+                $0.isEnabled == (request.enabledFilter == .enabledOnly)
+            }
+        }
+        if request.before != 0 {
+            triggers = triggers.filter {
+                guard let date = $0.lastFireDate else {
+                    return false // never fired, so not "fired before" some date
+                }
+                
+                return date.timeIntervalSince1970 <= Double(request.before)
+            }
+        }
+        if request.after != 0 {
+            triggers = triggers.filter {
+                guard let date = $0.lastFireDate else {
+                    return false // never fired, so not "fired after" some date
+                }
+                
+                return date.timeIntervalSince1970 >= Double(request.after)
+            }
+        }
+        
+        let triggerInfos = triggers.map { HomeKitServiceProvider.triggerInformation(trigger: $0) }
+        
+        var response = Org_Hkserver_EnumerateTriggersResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.triggers = triggerInfos
+        return context.eventLoop.makeSucceededFuture(response)
     }
 
     // ============== Helpers ============
@@ -454,6 +511,41 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         var a = Org_Hkserver_ActionSetInformation.Action()
         a.genericAction = ga
         return a
+    }
+    
+    internal class func triggerInformation(trigger: HMTrigger) -> Org_Hkserver_TriggerInformation {
+        var cti = Org_Hkserver_CommonTriggerInformation()
+        cti.name = trigger.name
+        cti.uuid = trigger.uuid
+        cti.isEnabled = trigger.isEnabled
+        if let lastFireDate = trigger.lastFireDate {
+            cti.lastFireDate = UInt64(lastFireDate.timeIntervalSince1970)
+        }
+        cti.actionSets = trigger.actionSets.map { nameUuidPair(obj: $0) }
+
+        var ti = Org_Hkserver_TriggerInformation()
+        if let event = trigger as? HMEventTrigger {
+            var eti = Org_Hkserver_EventTriggerInformation()
+            eti.trigger = cti
+            eti.activationState = triggerActivationState(activationState: event.triggerActivationState)
+            eti.events = event.events.map { eventInformation(event: $0) }
+            eti.endEvents = event.endEvents.map { eventInformation(event: $0) }
+            if let recurrences = event.recurrences {
+                eti.recurrences = recurrences.map { weekday(from: $0) }
+            }
+            eti.executesOnce = event.executeOnce
+            ti.event = eti
+        } else if let timer = trigger as? HMTimerTrigger {
+            var tti = Org_Hkserver_TimerTriggerInformation()
+            tti.trigger = cti
+            tti.fireDate = UInt64(timer.fireDate.timeIntervalSince1970)
+            if let calendar = timer.recurrenceCalendar, let recurrence = timer.recurrence {
+                let next = calendar.date(byAdding: recurrence, to: timer.fireDate)
+                tti.recurrence = UInt64(next?.timeIntervalSince(timer.fireDate) ?? 0.0)
+            }
+            ti.timer = tti
+        }
+        return ti
     }
 
     internal class func nameUuidPair(obj: NameOrUuidFilterable) -> Org_Hkserver_NameUuidPair {
@@ -787,8 +879,8 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         return n
     }
     
-    internal class func valueFromCharacteristicValue(format: Org_Hkserver_CharacteristicInformation.Format, value: Any) -> Org_Hkserver_CharacteristicInformation.Value? {
-        var v = Org_Hkserver_CharacteristicInformation.Value()
+    internal class func valueFromCharacteristicValue(format: Org_Hkserver_CharacteristicInformation.Format, value: Any) -> Org_Hkserver_Value? {
+        var v = Org_Hkserver_Value()
         switch format {
         case .bool: // = 1
             v.boolValue = (value as! NSNumber).boolValue
@@ -1129,5 +1221,150 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         default:
             return .invalidUnits
         }
+    }
+    
+    internal class func triggerActivationState(activationState: HMEventTriggerActivationState) -> Org_Hkserver_EventTriggerInformation.ActivationState {
+        switch activationState {
+        case .disabled:
+            return .eventTriggerDisabled
+        case .disabledNoCompatibleHomeHub:
+            return .eventTriggerDisabledNoCompatibleHomeHub
+        case .disabledNoHomeHub:
+            return .eventTriggerDisabledNoHomeHub
+        case .disabledNoLocationServicesAuthorization:
+            return .eventTriggerDisabledNoLocationServicesAuthorization
+        case .enabled:
+            return .eventTriggerEnabled
+        @unknown default:
+            return .invalidActivationState
+        }
+    }
+    
+    internal class func eventInformation(event: HMEvent) -> Org_Hkserver_EventInformation {
+        var ei = Org_Hkserver_EventInformation()
+        if let event = event as? HMLocationEvent {
+            var le = Org_Hkserver_LocationEventInformation()
+            le.uuid = event.uuid
+            le.notifyOnEntry = event.region?.notifyOnEntry ?? false
+            le.notifyOnExit = event.region?.notifyOnExit ?? false
+            le.region = regionInformation(region: event.region) ?? Org_Hkserver_CircularRegion()
+            ei.locationEvent = le
+        } else if let event = event as? HMCalendarEvent {
+            var ce = Org_Hkserver_CalendarEventInformation()
+            let calendar = event.fireDateComponents.calendar ?? Calendar.current
+            ce.uuid = event.uuid
+            ce.fireDate = UInt64(calendar.date(from: event.fireDateComponents)?.timeIntervalSince1970 ?? 0.0)
+            ei.calendarEvent = ce
+        } else if let event = event as? HMSignificantTimeEvent {
+            var ste = Org_Hkserver_SignificantTimeEventInformation()
+            ste.uuid = event.uuid
+            ste.significantEvent = significantEvent(significantEvent: event.significantEvent)
+            if let offset = event.offset {
+                let calendar = offset.calendar ?? Calendar.current
+                ste.offset = UInt64(calendar.date(from: offset)?.timeIntervalSince1970 ?? 0.0)
+            }
+            ei.significantTimeEvent = ste
+        } else if let event = event as? HMDurationEvent {
+            var de = Org_Hkserver_DurationEventInformation()
+            de.uuid = event.uuid
+            de.duration = event.duration
+            ei.durationEvent = de
+        } else if let event = event as? HMCharacteristicEvent<NSCopying> {
+            var ce = Org_Hkserver_CharacteristicEventInformation()
+            ce.uuid = event.uuid
+            ce.characteristic = nameUuidPair(obj: event.characteristic)
+            if let triggerValue = event.triggerValue {
+                let type = characteristicType(type: event.characteristic.characteristicType)
+                ce.triggerValue = valueFromCharacteristicValue(format: formatFromCharacteristicTypeAndMetadata(type: type, metadata: event.characteristic.metadata), value: triggerValue)!
+            }
+            ei.characteristicEvent = ce
+        } else if let event = event as? HMCharacteristicThresholdRangeEvent {
+            var ctre = Org_Hkserver_CharacteristicThresholdRangeEventInformation()
+            ctre.uuid = event.uuid
+            ctre.characteristic = nameUuidPair(obj: event.characteristic)
+            let type = characteristicType(type: event.characteristic.characteristicType)
+            let format = formatFromCharacteristicTypeAndMetadata(type: type, metadata: event.characteristic.metadata)
+            ctre.range = numberRange(format: format, numberRange: event.thresholdRange)
+            ei.characteristicThresholdRangeEvent = ctre
+        } else if let event = event as? HMPresenceEvent {
+            var pe = Org_Hkserver_PresenceEventInformation()
+            pe.uuid = event.uuid
+            pe.presenceEvent = presenceEventType(presenceEventType: event.presenceEventType)
+            pe.presenceUser = presenceEventUserType(presenceEventUserType: event.presenceUserType)
+            ei.presenceEvent = pe
+        }
+        return ei
+    }
+    
+    internal class func regionInformation(region: CLRegion?) -> Org_Hkserver_CircularRegion? {
+        guard let region = region as? CLCircularRegion else {
+            return nil
+        }
+        
+        var cri = Org_Hkserver_CircularRegion()
+        cri.center = coordinate2D(coords: region.center)
+        cri.radius = region.radius
+        return cri
+    }
+    
+    internal class func coordinate2D(coords: CLLocationCoordinate2D) -> Org_Hkserver_Coordinate2D {
+        var c2d = Org_Hkserver_Coordinate2D()
+        c2d.latitude = coords.latitude
+        c2d.longitude = coords.longitude
+        return c2d
+    }
+    
+    internal class func significantEvent(significantEvent: HMSignificantEvent) -> Org_Hkserver_SignificantEvent {
+        switch significantEvent {
+        case .sunrise:
+            return .sunrise
+        case .sunset:
+            return .sunset
+        default:
+            return .invalidSignificantEvent
+        }
+    }
+    
+    internal class func numberRange(format: Org_Hkserver_CharacteristicInformation.Format, numberRange: HMNumberRange) -> Org_Hkserver_NumberRange {
+        var nr = Org_Hkserver_NumberRange()
+        if let minValue = numberRange.minValue {
+            nr.minValue = numberFromNSNumber(format: format, number: minValue)!
+        }
+        if let maxValue = numberRange.maxValue {
+            nr.maxValue = numberFromNSNumber(format: format, number: maxValue)!
+        }
+        return nr
+    }
+    
+    internal class func presenceEventType(presenceEventType: HMPresenceEventType) -> Org_Hkserver_PresenceEventType {
+        switch presenceEventType {
+        case .everyEntry:
+            return .everyEntry
+        case .everyExit:
+            return .everyExit
+        case .firstEntry:
+            return .firstEntry
+        case .lastExit:
+            return .lastExit
+        default:
+            return .invalidPresenceEventType
+        }
+    }
+    
+    internal class func presenceEventUserType(presenceEventUserType: HMPresenceEventUserType) -> Org_Hkserver_PresenceEventUserType {
+        switch presenceEventUserType {
+        case .currentUser:
+            return .currentUser
+        case .customUsers:
+            return .customUsers
+        case .homeUsers:
+            return .homeUsers
+        default:
+            return .invalidPresenceEventUserType
+        }
+    }
+    
+    internal class func weekday(from: DateComponents) -> Org_Hkserver_Weekday {
+        return Weekdays[from.weekday! - 1]
     }
 }
