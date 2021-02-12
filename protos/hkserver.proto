@@ -356,7 +356,7 @@ message ActionSetInformation {
   message CharacteristicAction {
     string uuid = 1;
     CharacteristicInformation characteristic = 2;
-    // TODO: figure out how to represent target value 
+    Value target_value = 3;
   }
 
   message GenericAction {

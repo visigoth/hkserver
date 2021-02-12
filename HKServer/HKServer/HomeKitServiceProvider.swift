@@ -500,6 +500,9 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         var ca = Org_Hkserver_ActionSetInformation.CharacteristicAction()
         ca.uuid = (action as HMAction).uuid
         ca.characteristic = characteristicInfo(characteristic: action.characteristic)
+        let type = characteristicType(type: action.characteristic.characteristicType)
+        let format = formatFromCharacteristicTypeAndMetadata(type: type, metadata: action.characteristic.metadata)
+        ca.targetValue = valueFromCharacteristicValue(format: format, value: action.targetValue)!
         var a = Org_Hkserver_ActionSetInformation.Action()
         a.characteristicAction = ca
         return a
