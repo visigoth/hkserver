@@ -120,6 +120,7 @@ extension HomeKitServiceError : GRPCStatusTransformable {
 }
 
 class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
+
     public var homeManager: HMHomeManager
 
     init(homeManager: HMHomeManager) {
@@ -332,6 +333,58 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
         response.triggers = triggerInfos
         return context.eventLoop.makeSucceededFuture(response)
+    }
+
+    func addRemoveRoom(request: Org_Hkserver_AddRemoveRoomRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveRoomResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func addRemoveZone(request: Org_Hkserver_AddRemoveZoneRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveZoneResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func addRemoveServiceGroup(request: Org_Hkserver_AddRemoveServiceGroupRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveServiceGroupResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func changeRoomZoneMembership(request: Org_Hkserver_ChangeRoomZoneMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeRoomZoneMembershipResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func moveAccessoryToRoom(request: Org_Hkserver_MoveAccessoryToRoomRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_MoveAccessoryToRoomResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func changeServiceGroupMembership(request: Org_Hkserver_ChangeServiceGroupMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeServiceGroupMembershipResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func addRemoveActions(request: Org_Hkserver_AddRemoveActionSetRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveActionSetResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func addRemoveTriggers(request: Org_Hkserver_AddRemoveTriggersRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveTriggersResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func enableDisableTrigger(request: Org_Hkserver_EnableDisableTriggerRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_EnableDisableTriggerResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func changeActionSetMembership(request: Org_Hkserver_ChangeActionSetMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeActionSetMembershipResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func changeTriggerMembership(request: Org_Hkserver_ChangeTriggerMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeTriggerMembershipResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func runActionSet(request: Org_Hkserver_RunActionSetRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_RunActionSetResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+    }
+    
+    func runTrigger(request: Org_Hkserver_RunTriggerRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_RunTriggerResponse> {
+        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
 
     // ============== Helpers ============

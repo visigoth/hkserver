@@ -623,7 +623,207 @@ message EnumerateTriggersResponse {
   repeated TriggerInformation triggers = 2;
 }
 
+enum AddRemove {
+  ADD = 0;
+  REMOVE = 1;
+}
+
+message AddRemoveRoomRequest {
+  string home = 1;
+  string name = 2;
+  repeated string accessories = 3;
+  AddRemove change = 4;
+}
+
+message AddRemoveRoomResponse {
+  NameUuidPair home = 1;
+  NameUuidPair room = 2;
+}
+
+message AddRemoveZoneRequest {
+  string home = 1;
+  string name = 2;
+  repeated string rooms = 3;
+  AddRemove change = 4;
+}
+
+message AddRemoveZoneResponse {
+  NameUuidPair home = 1;
+  NameUuidPair zone = 2;
+}
+
+message ChangeRoomZoneMembershipRequest {
+  string home = 1;
+  string name = 2;
+  string zone = 3;
+  AddRemove change = 4;
+}
+
+message ChangeRoomZoneMembershipResponse {
+  NameUuidPair home = 1;
+  NameUuidPair room = 2;
+  NameUuidPair zone = 3;
+}
+
+message MoveAccessoryToRoomRequest {
+  string home = 1;
+  string name = 2;
+  string room = 3;
+}
+
+message MoveAccessoryToRoomResponse {
+  NameUuidPair home = 1;
+  NameUuidPair accessory = 2;
+  NameUuidPair room = 3;
+}
+
+message AddRemoveServiceGroupRequest {
+  string home = 1;
+  string name = 2;
+  repeated string services = 3;
+  AddRemove change = 4;
+}
+
+message AddRemoveServiceGroupResponse {
+  NameUuidPair home = 1;
+  NameUuidPair service_group = 2;
+}
+
+message ChangeServiceGroupMembershipRequest {
+  string home = 1;
+  string name = 2;
+  string service_filter = 3;
+  AddRemove change = 4;
+}
+
+message ChangeServiceGroupMembershipResponse {
+  NameUuidPair home = 1;
+  NameUuidPair service_group = 2;
+  repeated NameUuidPair services = 3;
+}
+
+message CharacteristicActionDefinition {
+  string characteristic = 1;
+  Value target_value = 2;
+}
+
+message ActionDefinition {
+  oneof action_definition {
+    CharacteristicActionDefinition characteristic_action = 1;
+  }
+}
+
+message AddRemoveActionSetRequest {
+  string home = 1;
+  string name = 2;
+  AddRemove change = 3;
+  repeated ActionDefinition action_definition = 5;
+}
+
+message AddRemoveActionSetResponse {
+  NameUuidPair home = 1;
+  NameUuidPair action_set = 2;
+}
+
+message ChangeActionSetMembershipRequest {
+  message NameOrActionDefinition {
+    oneof action {
+      ActionDefinition definition = 1;
+      string uuid = 2;
+    }
+  }
+
+  string home = 1;
+  string name = 2;
+  AddRemove change = 3;
+  NameOrActionDefinition actions = 4;
+}
+
+message ChangeActionSetMembershipResponse {
+  NameUuidPair home = 1;
+  NameUuidPair action_set = 2;
+}
+
+message AddRemoveTriggersRequest {
+  string home = 1;
+  string name = 2;
+  AddRemove change = 3;
+  repeated string action_sets = 4;
+}
+
+message AddRemoveTriggersResponse {
+  NameUuidPair home = 1;
+  NameUuidPair trigger = 2;
+}
+
+message EnableDisableTriggerRequest {
+  string home = 1;
+  string name = 2;
+  bool enable = 3;
+}
+
+message EnableDisableTriggerResponse {
+  NameUuidPair home = 1;
+  NameUuidPair trigger = 2;
+}
+
+message ChangeTriggerMembershipRequest {
+  string home = 1;
+  string name = 2;
+  AddRemove change = 3;
+  repeated string action_sets = 4;
+}
+
+message ChangeTriggerMembershipResponse {
+  NameUuidPair home = 1;
+  NameUuidPair trigger = 2;
+}
+
+message RunActionSetRequest {
+  string home = 1;
+  string name = 2;
+}
+
+message RunActionSetResponse {
+  NameUuidPair home = 1;
+  NameUuidPair action_set = 2;
+}
+
+message RunTriggerRequest {
+  string home = 1;
+  string name = 2;
+}
+
+message RunTriggerResponse {
+  NameUuidPair home = 1;
+  NameUuidPair trigger = 2;
+}
+
+message SetNameRequest {
+  enum ObjectType {
+    OBJECT_TYPE_UNKNOWN = 0;
+    OBJECT_TYPE_HOME = 1;
+    OBJECT_TYPE_ROOM = 2;
+    OBJECT_TYPE_ZONE = 3;
+    OBJECT_TYPE_ACCESSORY = 4;
+    OBJECT_TYPE_SERVICE_GROUP = 5;
+    OBJECT_TYPE_ACTION_SET = 6;
+    OBJECT_TYPE_TRIGGER = 7;
+  }
+
+  string home = 1;
+  string name = 2;
+  string new_name = 3;
+  ObjectType object_type = 4;
+}
+
+message SetNameResponse {
+  NameUuidPair home = 1;
+  NameUuidPair object = 2;
+}
+
 service HomeKitService {
+  // Enumerate stuff
   rpc EnumerateHomes(EnumerateHomesRequest) returns (EnumerateHomesResponse);
   rpc EnumerateRooms(EnumerateRoomsRequest) returns (EnumerateRoomsResponse);
   rpc EnumerateZones(EnumerateZonesRequest) returns (EnumerateZonesResponse);
@@ -632,4 +832,26 @@ service HomeKitService {
   rpc EnumerateServices(EnumerateServicesRequest) returns (EnumerateServicesResponse);
   rpc EnumerateActionSets(EnumerateActionSetsRequest) returns (EnumerateActionSetsResponse);
   rpc EnumerateTriggers(EnumerateTriggersRequest) returns (EnumerateTriggersResponse);
+
+  // Organize a home
+  rpc AddRemoveRoom(AddRemoveRoomRequest) returns (AddRemoveRoomResponse);
+  rpc AddRemoveZone(AddRemoveZoneRequest) returns (AddRemoveZoneResponse);
+  rpc AddRemoveServiceGroup(AddRemoveServiceGroupRequest) returns (AddRemoveServiceGroupResponse);
+  rpc ChangeRoomZoneMembership(ChangeRoomZoneMembershipRequest) returns (ChangeRoomZoneMembershipResponse);
+  rpc MoveAccessoryToRoom(MoveAccessoryToRoomRequest) returns (MoveAccessoryToRoomResponse);
+  rpc ChangeServiceGroupMembership(ChangeServiceGroupMembershipRequest) returns (ChangeServiceGroupMembershipResponse);
+
+  // Manage action sets and triggers
+  rpc AddRemoveActions(AddRemoveActionSetRequest) returns (AddRemoveActionSetResponse);
+  rpc AddRemoveTriggers(AddRemoveTriggersRequest) returns (AddRemoveTriggersResponse);
+  rpc EnableDisableTrigger(EnableDisableTriggerRequest) returns (EnableDisableTriggerResponse);
+  rpc ChangeActionSetMembership(ChangeActionSetMembershipRequest) returns (ChangeActionSetMembershipResponse);
+  rpc ChangeTriggerMembership(ChangeTriggerMembershipRequest) returns (ChangeTriggerMembershipResponse);
+
+  // Run actions, triggers
+  rpc RunActionSet(RunActionSetRequest) returns (RunActionSetResponse);
+  rpc RunTrigger(RunTriggerRequest) returns (RunTriggerResponse);
+
+  // Rename things
+  rpc SetName(SetNameRequest) returns (SetNameResponse);
 }
