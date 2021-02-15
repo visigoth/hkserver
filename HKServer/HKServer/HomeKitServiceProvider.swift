@@ -57,15 +57,32 @@ extension NameOrUuidFilterable {
         let range = NSRange(location: 0, length: uuid.count)
         return filter.matches(in: uuid, range: range).count != 0
     }
+
     func matches(pattern: String?) -> Bool {
-        var filter: NSRegularExpression?
-        if let pattern = pattern {
-            if pattern.count != 0 {
-                filter = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+        return matches(filter: filterExpression(pattern: pattern))
+    }
+
+    func matchesExactly(nameOrUuid: String) -> Bool {
+        if self.uuid == nameOrUuid {
+            return true
+        }
+        if let name = self.filterableName {
+            if name == nameOrUuid {
+                return true
             }
         }
-        return matches(filter: filter)
+        return false
     }
+}
+
+func filterExpression(pattern: String?) -> NSRegularExpression? {
+    var filter: NSRegularExpression?
+    if let pattern = pattern {
+        if pattern.count != 0 {
+            filter = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+        }
+    }
+    return filter
 }
 
 extension HMHome : NameOrUuidFilterable, WithNameProperty {}
