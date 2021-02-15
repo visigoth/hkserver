@@ -470,6 +470,11 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
     }
 
+    func setName(request: Org_Hkserver_SetNameRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_SetNameResponse> {
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_SetNameResponse.self)
+        return promise.futureResult
+    }
+
     // ============== Helpers ============
 
     internal func findHome(pattern: String?) -> HMHome? {
