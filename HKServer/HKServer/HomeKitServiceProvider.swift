@@ -124,6 +124,7 @@ struct HomeKitServiceError : Error {
     }
     
     public static let nyi = HomeKitServiceError(code: .unimplemented, message: "NYI")
+    public static let unexpected = HomeKitServiceError(code: .internalError, message: "Unexpected condition")
     
     public static func homeNotFound(pattern: String?) -> HomeKitServiceError {
         return HomeKitServiceError(code: .notFound, message: "Could not find a home matching '\(pattern ?? "nil")'")
