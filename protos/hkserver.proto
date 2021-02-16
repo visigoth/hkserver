@@ -623,7 +623,7 @@ message EnumerateTriggersResponse {
   repeated TriggerInformation triggers = 2;
 }
 
-enum AddRemove {
+enum Operation {
   ADD = 0;
   REMOVE = 1;
 }
@@ -632,7 +632,7 @@ message AddRemoveRoomRequest {
   string home = 1;
   string name = 2;
   repeated string accessories = 3;
-  AddRemove change = 4;
+  Operation operation = 4;
 }
 
 message AddRemoveRoomResponse {
@@ -644,7 +644,7 @@ message AddRemoveZoneRequest {
   string home = 1;
   string name = 2;
   repeated string rooms = 3;
-  AddRemove change = 4;
+  Operation operation = 4;
 }
 
 message AddRemoveZoneResponse {
@@ -656,7 +656,7 @@ message ChangeRoomZoneMembershipRequest {
   string home = 1;
   string name = 2;
   string zone = 3;
-  AddRemove change = 4;
+  Operation operation = 4;
 }
 
 message ChangeRoomZoneMembershipResponse {
@@ -681,7 +681,7 @@ message AddRemoveServiceGroupRequest {
   string home = 1;
   string name = 2;
   repeated string services = 3;
-  AddRemove change = 4;
+  Operation operation = 4;
 }
 
 message AddRemoveServiceGroupResponse {
@@ -693,7 +693,7 @@ message ChangeServiceGroupMembershipRequest {
   string home = 1;
   string name = 2;
   string service_filter = 3;
-  AddRemove change = 4;
+  Operation operation = 4;
 }
 
 message ChangeServiceGroupMembershipResponse {
@@ -716,7 +716,7 @@ message ActionDefinition {
 message AddRemoveActionSetRequest {
   string home = 1;
   string name = 2;
-  AddRemove change = 3;
+  Operation operation = 3;
   repeated ActionDefinition action_definition = 5;
 }
 
@@ -735,7 +735,7 @@ message ChangeActionSetMembershipRequest {
 
   string home = 1;
   string name = 2;
-  AddRemove change = 3;
+  Operation operation = 3;
   NameOrActionDefinition actions = 4;
 }
 
@@ -747,7 +747,7 @@ message ChangeActionSetMembershipResponse {
 message AddRemoveTriggersRequest {
   string home = 1;
   string name = 2;
-  AddRemove change = 3;
+  Operation operation = 3;
   repeated string action_sets = 4;
 }
 
@@ -770,7 +770,7 @@ message EnableDisableTriggerResponse {
 message ChangeTriggerMembershipRequest {
   string home = 1;
   string name = 2;
-  AddRemove change = 3;
+  Operation operation = 3;
   repeated string action_sets = 4;
 }
 
