@@ -123,6 +123,10 @@ struct HomeKitServiceError : Error {
         self.message = message
     }
     
+    init(other: Error) {
+        self.init(code: .internalError, message: other.localizedDescription)
+    }
+
     public static let nyi = HomeKitServiceError(code: .unimplemented, message: "NYI")
     public static let unexpected = HomeKitServiceError(code: .internalError, message: "Unexpected condition")
     
@@ -133,7 +137,7 @@ struct HomeKitServiceError : Error {
 
 extension HomeKitServiceError : GRPCStatusTransformable {
     func makeGRPCStatus() -> GRPCStatus {
-        return GRPCStatus(code: .unimplemented, message: self.message)
+        return GRPCStatus(code: self.code, message: self.message)
     }
 }
 
@@ -362,7 +366,7 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
         case .add:
             home.addRoom(withName: request.name, completionHandler: {room, error in
                 if let error = error {
-                    promise.fail(error)
+                    promise.fail(HomeKitServiceError(other: error))
                     return
                 }
 
