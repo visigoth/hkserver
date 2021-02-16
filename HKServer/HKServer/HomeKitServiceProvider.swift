@@ -573,7 +573,49 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func changeRoomZoneMembership(request: Org_Hkserver_ChangeRoomZoneMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeRoomZoneMembershipResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        guard let room = home.rooms.first(where: { $0.matchesExactly(nameOrUuid: request.name) }) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.notFound(objectType: "room", pattern: request.name))
+        }
+
+        guard let zone = home.zones.first(where: { $0.matchesExactly(nameOrUuid: request.zone) }) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.notFound(objectType: "zone", pattern: request.zone))
+        }
+
+        // We're able to pre-format the response, but not set the promise until the operation is complete
+        var response = Org_Hkserver_ChangeRoomZoneMembershipResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.room = HomeKitServiceProvider.nameUuidPair(obj: room)
+        response.zone = HomeKitServiceProvider.nameUuidPair(obj: zone)
+
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_ChangeRoomZoneMembershipResponse.self)
+        switch request.change {
+        case .add:
+            zone.addRoom(room, completionHandler: { error in
+                if let error = error {
+                    promise.fail(HomeKitServiceError(other: error))
+                    return
+                }
+
+                promise.succeed(response)
+            })
+        case .remove:
+            zone.removeRoom(room, completionHandler: { error in
+                if let error = error {
+                    promise.fail(HomeKitServiceError(other: error))
+                    return
+                }
+
+                promise.succeed(response)
+            })
+        case .UNRECOGNIZED(_):
+            promise.fail(HomeKitServiceError(code: .invalidArgument, message: "Invalid value for change"))
+        }
+
+        return promise.futureResult
     }
     
     func moveAccessoryToRoom(request: Org_Hkserver_MoveAccessoryToRoomRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_MoveAccessoryToRoomResponse> {
