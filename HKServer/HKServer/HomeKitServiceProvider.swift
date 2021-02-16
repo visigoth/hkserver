@@ -651,7 +651,59 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func changeServiceGroupMembership(request: Org_Hkserver_ChangeServiceGroupMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeServiceGroupMembershipResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        guard let serviceGroup = home.serviceGroups.first(where: { $0.matchesExactly(nameOrUuid: request.name) }) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.notFound(objectType: "service group", pattern: request.name))
+        }
+        
+        var services : [HMService]
+        var futures : [EventLoopFuture<Void>]
+        switch request.change {
+        case .add:
+            services = home.accessories.flatMap({ $0.services }).filter({ $0.matches(pattern: request.serviceFilter )})
+            futures = services.map({
+                let promise = context.eventLoop.makePromise(of: Void.self)
+                serviceGroup.addService($0, completionHandler: { error in
+                    if let error = error {
+                        promise.fail(HomeKitServiceError(other: error))
+                        return
+                    }
+                    promise.succeed(())
+                })
+                return promise.futureResult
+            })
+
+        case .remove:
+            services = serviceGroup.services.filter({ $0.matches(pattern: request.serviceFilter )})
+            futures = services.map({
+                let promise = context.eventLoop.makePromise(of: Void.self)
+                serviceGroup.removeService($0, completionHandler: { error in
+                    if let error = error {
+                        promise.fail(HomeKitServiceError(other: error))
+                        return
+                    }
+                    promise.succeed(())
+                })
+                return promise.futureResult
+            })
+        case .UNRECOGNIZED(_):
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError(code: .invalidArgument, message: "Invalid value for change"))
+        }
+        
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_ChangeServiceGroupMembershipResponse.self)
+        EventLoopFuture.andAllSucceed(futures, on: context.eventLoop)
+            .map({ () -> Org_Hkserver_ChangeServiceGroupMembershipResponse in
+                var response = Org_Hkserver_ChangeServiceGroupMembershipResponse()
+                response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+                response.serviceGroup = HomeKitServiceProvider.nameUuidPair(obj: serviceGroup)
+                response.services = services.map({ HomeKitServiceProvider.nameUuidPair(obj: $0) })
+                return response
+            })
+            .cascade(to: promise)
+        return promise.futureResult
     }
     
     func addRemoveActions(request: Org_Hkserver_AddRemoveActionSetRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveActionSetResponse> {
