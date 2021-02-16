@@ -497,7 +497,74 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func addRemoveServiceGroup(request: Org_Hkserver_AddRemoveServiceGroupRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveServiceGroupResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_AddRemoveServiceGroupResponse.self)
+        switch request.change {
+        case .add:
+            home.addServiceGroup(withName: request.name, completionHandler: {serviceGroup, error in
+                if let error = error {
+                    promise.fail(HomeKitServiceError(other: error))
+                    return
+                }
+
+                guard let serviceGroup = serviceGroup else {
+                    promise.fail(HomeKitServiceError.unexpected)
+                    return
+                }
+
+                // Add the rooms
+                let allServices = home.accessories.flatMap({ $0.services })
+                let futures = request.services.flatMap(
+                        { nameOrUuid in
+                            allServices.filter(
+                                { service in
+                                    service.matchesExactly(nameOrUuid: nameOrUuid)
+                                })
+                        })
+                    .map({ service -> EventLoopFuture<Void> in
+                        let assignPromise: EventLoopPromise<Void> = context.eventLoop.makePromise(of: Void.self)
+                        serviceGroup.addService(service, completionHandler: { error in
+                            if let error = error {
+                                assignPromise.fail(HomeKitServiceError(other: error))
+                            }
+                            assignPromise.succeed(())
+                        })
+                        return assignPromise.futureResult
+                    })
+                EventLoopFuture.andAllSucceed(futures, on: context.eventLoop)
+                    .map({ () -> Org_Hkserver_AddRemoveServiceGroupResponse in
+                        var response = Org_Hkserver_AddRemoveServiceGroupResponse()
+                        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+                        response.serviceGroup = HomeKitServiceProvider.nameUuidPair(obj: serviceGroup)
+                        return response
+                    })
+                    .cascade(to: promise)
+            })
+        case .remove:
+            if let serviceGroup = home.serviceGroups.first(where: { serviceGroup in serviceGroup.matches(pattern: request.name) }) {
+                // Capture name/uuid pair before removing it
+                let serviceGroupNameUuid = HomeKitServiceProvider.nameUuidPair(obj: serviceGroup)
+                home.removeServiceGroup(serviceGroup, completionHandler: { error in
+                    if let error = error {
+                        promise.fail(HomeKitServiceError(other: error))
+                        return
+                    }
+
+                    var response = Org_Hkserver_AddRemoveServiceGroupResponse()
+                    response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+                    response.serviceGroup = serviceGroupNameUuid
+                    promise.succeed(response)
+                })
+            } else {
+                promise.fail(HomeKitServiceError(code: .notFound, message: "Service Group not found"))
+            }
+        case .UNRECOGNIZED(_):
+            promise.fail(HomeKitServiceError(code: .invalidArgument, message: "Invalid value for change"))
+        }
+        return promise.futureResult
     }
     
     func changeRoomZoneMembership(request: Org_Hkserver_ChangeRoomZoneMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeRoomZoneMembershipResponse> {
