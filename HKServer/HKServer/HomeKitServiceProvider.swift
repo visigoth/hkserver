@@ -387,7 +387,7 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
                         let assignPromise: EventLoopPromise<Void> = context.eventLoop.makePromise(of: Void.self)
                         home.assignAccessory(accessory, to: room, completionHandler: { error in
                             if let error = error {
-                                assignPromise.fail(error)
+                                assignPromise.fail(HomeKitServiceError(other: error))
                             }
                             assignPromise.succeed(())
                         })
@@ -408,7 +408,7 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
                 let roomNameUuid = HomeKitServiceProvider.nameUuidPair(obj: room)
                 home.removeRoom(room, completionHandler: { error in
                     if let error = error {
-                        promise.fail(error)
+                        promise.fail(HomeKitServiceError(other: error))
                         return
                     }
 
