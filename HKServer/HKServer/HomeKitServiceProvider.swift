@@ -619,7 +619,35 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func moveAccessoryToRoom(request: Org_Hkserver_MoveAccessoryToRoomRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_MoveAccessoryToRoomResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        guard let accessory = home.accessories.first(where: { $0.matchesExactly(nameOrUuid: request.name) }) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.notFound(objectType: "accessory", pattern: request.name))
+        }
+
+        guard let room = home.rooms.first(where: { $0.matchesExactly(nameOrUuid: request.room) }) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.notFound(objectType: "room", pattern: request.room))
+        }
+
+        // We're able to pre-format the response, but not set the promise until the operation is complete
+        var response = Org_Hkserver_MoveAccessoryToRoomResponse()
+        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+        response.accessory = HomeKitServiceProvider.nameUuidPair(obj: accessory)
+        response.room = HomeKitServiceProvider.nameUuidPair(obj: room)
+
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_MoveAccessoryToRoomResponse.self)
+        home.assignAccessory(accessory, to: room, completionHandler: { error in
+            if let error = error {
+                promise.fail(HomeKitServiceError(other: error))
+                return
+            }
+
+            promise.succeed(response)
+        })
+
+        return promise.futureResult
     }
     
     func changeServiceGroupMembership(request: Org_Hkserver_ChangeServiceGroupMembershipRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_ChangeServiceGroupMembershipResponse> {
