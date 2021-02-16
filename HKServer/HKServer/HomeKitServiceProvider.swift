@@ -427,7 +427,73 @@ class HomeKitServiceProvider : Org_Hkserver_HomeKitServiceProvider {
     }
     
     func addRemoveZone(request: Org_Hkserver_AddRemoveZoneRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveZoneResponse> {
-        return context.eventLoop.makeFailedFuture(HomeKitServiceError.nyi)
+        guard let home = self.findHome(pattern: request.home) else {
+            return context.eventLoop.makeFailedFuture(HomeKitServiceError.homeNotFound(pattern: request.home))
+        }
+
+        let promise = context.eventLoop.makePromise(of: Org_Hkserver_AddRemoveZoneResponse.self)
+        switch request.change {
+        case .add:
+            home.addZone(withName: request.name, completionHandler: {zone, error in
+                if let error = error {
+                    promise.fail(HomeKitServiceError(other: error))
+                    return
+                }
+
+                guard let zone = zone else {
+                    promise.fail(HomeKitServiceError.unexpected)
+                    return
+                }
+
+                // Add the rooms
+                let futures = request.rooms.flatMap(
+                        { nameOrUuid in
+                            home.rooms.filter(
+                                { room in
+                                    room.matchesExactly(nameOrUuid: nameOrUuid)
+                                })
+                        })
+                    .map({ room -> EventLoopFuture<Void> in
+                        let assignPromise: EventLoopPromise<Void> = context.eventLoop.makePromise(of: Void.self)
+                        zone.addRoom(room, completionHandler: { error in
+                            if let error = error {
+                                assignPromise.fail(HomeKitServiceError(other: error))
+                            }
+                            assignPromise.succeed(())
+                        })
+                        return assignPromise.futureResult
+                    })
+                EventLoopFuture.andAllSucceed(futures, on: context.eventLoop)
+                    .map({ () -> Org_Hkserver_AddRemoveZoneResponse in
+                        var response = Org_Hkserver_AddRemoveZoneResponse()
+                        response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+                        response.zone = HomeKitServiceProvider.nameUuidPair(obj: zone)
+                        return response
+                    })
+                    .cascade(to: promise)
+            })
+        case .remove:
+            if let zone = home.zones.first(where: { zone in zone.matches(pattern: request.name) }) {
+                // Capture name/uuid pair before removing it
+                let zoneNameUuid = HomeKitServiceProvider.nameUuidPair(obj: zone)
+                home.removeZone(zone, completionHandler: { error in
+                    if let error = error {
+                        promise.fail(HomeKitServiceError(other: error))
+                        return
+                    }
+
+                    var response = Org_Hkserver_AddRemoveZoneResponse()
+                    response.home = HomeKitServiceProvider.nameUuidPair(obj: home)
+                    response.zone = zoneNameUuid
+                    promise.succeed(response)
+                })
+            } else {
+                promise.fail(HomeKitServiceError(code: .notFound, message: "Zone not found"))
+            }
+        case .UNRECOGNIZED(_):
+            promise.fail(HomeKitServiceError(code: .invalidArgument, message: "Invalid value for change"))
+        }
+        return promise.futureResult
     }
     
     func addRemoveServiceGroup(request: Org_Hkserver_AddRemoveServiceGroupRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Org_Hkserver_AddRemoveServiceGroupResponse> {
